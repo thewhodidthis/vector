@@ -1,5 +1,3 @@
-'use strict';
-
 function Vector(x, y, z) {
   this.reset(x, y, z);
 }
@@ -7,10 +5,11 @@ function Vector(x, y, z) {
 Vector.prototype = {
   constructor: Vector,
 
-  dot: function dot(v) {
-    return this.x * v.x + this.y * v.y + this.z * v.z;
+  dot(v) {
+    return (this.x * v.x) + (this.y * v.y) + (this.z * v.z);
   },
-  add: function add(v) {
+
+  add(v) {
     if (v instanceof Vector) {
       this.x += v.x;
       this.y += v.y;
@@ -23,7 +22,8 @@ Vector.prototype = {
 
     return new Vector(this.x, this.y, this.z);
   },
-  subtract: function subtract(v) {
+
+  subtract(v) {
     if (v instanceof Vector) {
       this.x -= v.x;
       this.y -= v.y;
@@ -36,7 +36,8 @@ Vector.prototype = {
 
     return new Vector(this.x, this.y, this.z);
   },
-  multiply: function multiply(v) {
+
+  multiply(v) {
     if (v instanceof Vector) {
       this.x *= v.x;
       this.y *= v.y;
@@ -49,7 +50,8 @@ Vector.prototype = {
 
     return new Vector(this.x, this.y, this.z);
   },
-  divide: function divide(v) {
+
+  divide(v) {
     if (v instanceof Vector) {
       this.x /= v.x;
       this.y /= v.y;
@@ -62,49 +64,65 @@ Vector.prototype = {
 
     return new Vector(this.x, this.y, this.z);
   },
-  cross: function cross(v) {
-    return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
+
+  cross(v) {
+    return new Vector(
+      (this.y * v.z) - (this.z * v.y),
+      (this.z * v.x) - (this.x * v.z),
+      (this.x * v.y) - (this.y * v.x)
+    );
   },
-  equals: function equals(v) {
-    return this.x === v.x && this.y === v.y && this.z === v.z;
+
+  equals(v) {
+    return (this.x === v.x) && (this.y === v.y) && (this.z === v.z);
   },
-  length: function length() {
+
+  length() {
     return Math.sqrt(this.dot(this));
   },
-  invert: function invert() {
+
+  invert() {
     this.x = -this.x;
     this.y = -this.y;
     this.z = -this.z;
 
     return new Vector(this.x, this.y, this.z);
   },
-  normalize: function normalize() {
+
+  normalize() {
     this.divide(this.length());
 
     return this;
   },
-  min: function min() {
+
+  min() {
     return Math.min(Math.min(this.x, this.y), this.z);
   },
-  max: function max() {
+
+  max() {
     return Math.max(Math.max(this.x, this.y), this.z);
   },
-  angleTo: function angleTo(a) {
+
+  angleTo(a) {
     return Math.acos(this.dot(a) / (this.length() * a.length()));
   },
-  toAngle: function toAngle() {
+
+  toAngle() {
     return {
       theta: Math.atan2(this.z, this.x),
       phi: Math.asin(this.y / this.length())
     };
   },
-  toArray: function toArray(n) {
+
+  toArray(n) {
     return [this.x, this.y, this.z].slice(0, n || 3);
   },
-  clone: function clone() {
+
+  clone() {
     return new Vector(this.x, this.y, this.z);
   },
-  reset: function reset(x, y, z) {
+
+  reset(x, y, z) {
     this.x = x || 0;
     this.y = y || 0;
     this.z = z || 0;
@@ -114,7 +132,7 @@ Vector.prototype = {
 };
 
 Vector.add = function add(a, b, c) {
-  var result = c;
+  const result = c;
 
   if (b instanceof Vector) {
     result.x = a.x + b.x;
@@ -130,7 +148,7 @@ Vector.add = function add(a, b, c) {
 };
 
 Vector.subtract = function subtract(a, b, c) {
-  var result = c;
+  const result = c;
 
   if (b instanceof Vector) {
     result.x = a.x - b.x;
@@ -146,7 +164,7 @@ Vector.subtract = function subtract(a, b, c) {
 };
 
 Vector.multiply = function multiply(a, b, c) {
-  var result = c;
+  const result = c;
 
   if (b instanceof Vector) {
     result.x = a.x * b.x;
@@ -162,7 +180,7 @@ Vector.multiply = function multiply(a, b, c) {
 };
 
 Vector.divide = function divide(a, b, c) {
-  var result = c;
+  const result = c;
 
   if (b instanceof Vector) {
     result.x = a.x / b.x;
@@ -178,17 +196,17 @@ Vector.divide = function divide(a, b, c) {
 };
 
 Vector.cross = function cross(a, b, c) {
-  var result = c;
+  const result = c;
 
-  result.x = a.y * b.z - a.z * b.y;
-  result.y = a.z * b.x - a.x * b.z;
-  result.z = a.x * b.y - a.y * b.x;
+  result.x = (a.y * b.z) - (a.z * b.y);
+  result.y = (a.z * b.x) - (a.x * b.z);
+  result.z = (a.x * b.y) - (a.y * b.x);
 
   return result;
 };
 
 Vector.invert = function invert(a, b) {
-  var result = b;
+  const result = b;
 
   result.x = -a.x;
   result.y = -a.y;
@@ -198,8 +216,8 @@ Vector.invert = function invert(a, b) {
 };
 
 Vector.normalize = function normalize(a, b) {
-  var result = b;
-  var length = a.length();
+  const result = b;
+  const length = a.length();
 
   result.x = a.x / length;
   result.y = a.y / length;
@@ -217,7 +235,7 @@ Vector.max = function max(a, b) {
 };
 
 Vector.rand = function rand() {
-  return Vector.fromAngle(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
+  return Vector.fromAngle(Math.random() * Math.PI * 2, Math.asin((Math.random() * 2) - 1));
 };
 
 Vector.lerp = function lerp(a, b, fraction) {
@@ -229,9 +247,9 @@ Vector.dist = function dist(a, b) {
 };
 
 Vector.fromAngle = function fromAngle(theta, phi) {
-  var x = Math.cos(theta) * Math.cos(phi);
-  var y = Math.sin(phi);
-  var z = Math.sin(theta) * Math.cos(phi);
+  const x = Math.cos(theta) * Math.cos(phi);
+  const y = Math.sin(phi);
+  const z = Math.sin(theta) * Math.cos(phi);
 
   return new Vector(x, y, z);
 };
@@ -240,4 +258,4 @@ Vector.fromArray = function fromArray(a) {
   return new Vector(a[0], a[1], a[2]);
 };
 
-module.exports = Vector;
+export default Vector;
