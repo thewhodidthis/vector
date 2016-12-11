@@ -16,74 +16,207 @@ var Vector = window.Vector;
 ```
 
 ### Example
+![Screenshot](https://dl.dropboxusercontent.com/u/6084840/fireworks.gif "Screenshot")
+
 ```js
-(function(window, document) {
-	'use strict';
+'use strict';
 
-	// Bouncing balls example
-	var TAU = Math.PI * 2;
+// Full circle
+var TAU = Math.PI * 2;
 
-	var winW = window.innerWidth;
-	var winH = window.innerHeight;
+// Main drawing queue
+var fireworks = [];
 
-	var Ball = function Ball(x, y) {
-		this.pos = new Vector(x, y);
-		this.vel = new Vector(-5.25, 20);
-		this.radius = 25;
+// Drawing board
+var context = document.getElementById('canvas').getContext('2d');
 
-		this.update = function _update(mouse) {
-			if (this.pos.x > window.innerWidth || this.pos.x < 0) {
-				this.vel.x = -1 * this.vel.x;
-			}
-			
-			if (this.pos.y > window.innerHeight || this.pos.y < 0) {
-				this.vel.y = -1 * this.vel.y;
-			}
-			
-			this.pos = this.pos.add(this.vel);
-		};
+// Downward pull
+var gravity = new Vector(0, 0.25);
 
-		this.render = function _render(target) {
-			target.beginPath();
-			target.arc(this.pos.x, this.pos.y, this.radius, 0, TAU);
-			target.closePath();
-		}
-	};
+// Dot drawing
+var Particle = function Particle(options) {
+  var defaults = {
+    // Initialize to zero
+    acceleration: new Vector(),
 
-	var balls = [];
-	var ballsMax = 25;
+    // Set lifespan to half the available vertical space
+    lifespan: getRandomInt(0, 0.5 * context.canvas.height),
 
-	var context = document.createElement('canvas').getContext('2d');
+    // Position somewhere along the bottom line
+    position: new Vector(getRandomInt(0, context.canvas.width), context.canvas.height),
 
-	var animate = function _onEachFrame() {
-		context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    // Pixel size
+    radius: 1,
 
-		for(var i = 0, total = balls.length; i < total; i += 1) {
-			balls[i].update();
-			balls[i].render(context);
+    // No scaling
+    scale: 1,
 
-			context.fill();
-		}
+    // Go places
+    velocity: Vector.rand()
+  };
 
-		window.requestAnimationFrame(animate);
-	}
+  // Merge options and defaults
+  var settings = Object.assign({}, defaults, options);
 
-	context.canvas.width = winW;
-	context.canvas.height = winH;
+  // Reached the top
+  var isReadyToBurst = function isReadyToBurst() {
+    return settings.velocity.y >= 0;
+  };
 
-	context.fillStyle = '#00f';
+  // No more lives to live
+  var isDead = function dead() {
+    return settings.lifespan === 0;
+  };
 
-	for (var i = 0, total = ballsMax; i < total; i += 1) {
-		var x = Math.floor(Math.random() * winW);
-		var y = Math.floor(Math.random() * winH);
-		
-		balls[i] = new Ball(x, y);
-	}
+  // Move
+  var update = function update(f) {
+    var force = f || 0;
 
-	window.addEventListener('load', function _onLoad() {
-		document.body.insertBefore(context.canvas, document.body.firstChild);
+    // Reset acceleration
+    settings.acceleration.multiply(0);
 
-		window.requestAnimationFrame(animate);
-	}, false);
-})(window, document);
+    // Add everything together
+    settings.acceleration.add(force);
+    settings.velocity.add(settings.acceleration);
+    settings.position.add(settings.velocity);
+
+    settings.lifespan -= 1;
+  };
+
+  // Draw
+  var render = function render(context) {
+    settings.radius += settings.radius * settings.scale;
+
+    settings.radius = Math.max(settings.radius, 0);
+    settings.radius = Math.min(settings.radius, 5);
+
+    context.beginPath();
+    context.arc(settings.position.x, settings.position.y, settings.radius, 0, TAU);
+    context.fillStyle = '#fff';
+    context.fill();
+  };
+
+  return {
+    update,
+    render,
+    isReadyToBurst,
+    isDead,
+    settings
+  }
+};
+
+var Firework = function Firework(x, y, N) {
+  var total = N || 40;
+  var particles = [];
+  var living = true;
+
+  var rocket = new Particle({
+    // Rockets have a longer lifespan
+    lifespan: context.canvas.height,
+
+    // Rockets scale up
+    scale: 0.1,
+
+    // Rockets shoot up vertically
+    velocity: new Vector(0, getRandomInt(-2, 2)).multiply(5)
+  });
+
+  var done = function() {
+    return particles.length === 0;
+  };
+
+  var blow = function() {
+    // Change life status :)
+    living = false;
+
+    // Remove rocket from queue
+    particles.splice(0, 1);
+
+    // Explode
+    for (var i = 0; i < total; i += 1) {
+      // Add particles
+      particles.push(new Particle({
+        // Start where the rocket burst
+        position: rocket.settings.position.clone(),
+
+        // Particles start bigger
+        radius: 4,
+
+        // Shrink factor
+        scale: -0.75 * Math.random(),
+
+        // Particles shoot on all sides
+        velocity: Vector.rand().multiply(getRandomInt(-7, 2))
+      }));
+    }
+  };
+
+  var update = function update(gravity) {
+    if (living && rocket.isReadyToBurst()) {
+      blow();
+    }
+
+    for(var i = particles.length - 1; i >= 0; i -= 1) {
+      particles[i].update(gravity);
+
+      if (particles[i].isDead()) {
+        particles.splice(i, 1);
+      }
+    }
+  };
+
+  var render = function render(context) {
+    for (var i = particles.length - 1; i >= 0; i -= 1) {
+      particles[i].render(context);
+    }
+  };
+
+  // Initialize
+  particles.push(rocket);
+
+  return {
+    deadAndDone: function() {
+      return rocket.isDead() && done();
+    },
+    update,
+    render
+  };
+};
+
+var animate = function animate() {
+  // Clear the canvas
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+
+  // Add fireworks, no need to bother with frame count this way
+  if (Math.random() < 0.25) {
+    fireworks.push(new Firework());
+  }
+
+  for(var i = fireworks.length - 1; i >= 0; i -= 1) {
+    // Move
+    fireworks[i].update(gravity);
+
+    // Draw
+    fireworks[i].render(context);
+
+    // Cleanup
+    if (fireworks[i].deadAndDone()) {
+      fireworks.splice(i, 1);
+    }
+  }
+
+  // Repeat
+  window.requestAnimationFrame(animate);
+}
+
+// Once everything's been loaded in
+window.addEventListener('load', function onLoad() {
+  // Animate
+  window.requestAnimationFrame(animate);
+}, false);
+
+// Get random number in range
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 ```
