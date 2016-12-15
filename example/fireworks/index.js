@@ -59,6 +59,7 @@ var Particle = function Particle(options) {
     settings.velocity.add(settings.acceleration);
     settings.position.add(settings.velocity);
 
+    // Decrease lifespan
     settings.lifespan -= 1;
   };
 
@@ -85,7 +86,7 @@ var Particle = function Particle(options) {
 };
 
 var Firework = function Firework(x, y, N) {
-  var total = N || 40;
+  var total = N || getRandomInt(25, 50);
   var particles = [];
   var living = true;
 
