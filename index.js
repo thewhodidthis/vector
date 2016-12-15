@@ -21,7 +21,7 @@ Vector.prototype = {
       this.z += v;
     }
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
   subtract: function subtract(v) {
     if (v instanceof Vector) {
@@ -34,7 +34,7 @@ Vector.prototype = {
       this.z -= v;
     }
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
   multiply: function multiply(v) {
     if (v instanceof Vector) {
@@ -47,7 +47,7 @@ Vector.prototype = {
       this.z *= v;
     }
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
   divide: function divide(v) {
     if (v instanceof Vector) {
@@ -60,7 +60,7 @@ Vector.prototype = {
       this.z /= v;
     }
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
   cross: function cross(v) {
     return new Vector(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
@@ -76,7 +76,7 @@ Vector.prototype = {
     this.y = -this.y;
     this.z = -this.z;
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
   normalize: function normalize() {
     this.divide(this.length());

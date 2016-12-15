@@ -20,7 +20,7 @@ Vector.prototype = {
       this.z += v;
     }
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
 
   subtract(v) {
@@ -34,7 +34,7 @@ Vector.prototype = {
       this.z -= v;
     }
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
 
   multiply(v) {
@@ -48,7 +48,7 @@ Vector.prototype = {
       this.z *= v;
     }
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
 
   divide(v) {
@@ -62,7 +62,7 @@ Vector.prototype = {
       this.z /= v;
     }
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
 
   cross(v) {
@@ -86,7 +86,7 @@ Vector.prototype = {
     this.y = -this.y;
     this.z = -this.z;
 
-    return new Vector(this.x, this.y, this.z);
+    return this;
   },
 
   normalize() {
