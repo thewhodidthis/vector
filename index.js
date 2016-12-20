@@ -113,7 +113,7 @@ Vector.divide = function divide(a, b, c) {
   return result;
 };
 
-Vector.fromAngle = function from(a) {
+Vector.from = function from(a) {
   return new Vector(a.x, a.y, a.z);
 };
 
