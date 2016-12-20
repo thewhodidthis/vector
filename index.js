@@ -14,7 +14,7 @@ Vector.prototype = {
     return Math.acos(this.dot(a) / (this.length() * a.length()));
   },
   clone: function clone() {
-    return new Vector(this.x, this.y, this.z);
+    return Vector.from(this);
   },
   cross: function cross(v) {
     return Vector.cross(v, this);
@@ -111,6 +111,10 @@ Vector.divide = function divide(a, b, c) {
   }
 
   return result;
+};
+
+Vector.fromAngle = function from(a) {
+  return new Vector(a.x, a.y, a.z);
 };
 
 Vector.fromAngle = function fromAngle(theta, phi) {
