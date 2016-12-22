@@ -70,10 +70,7 @@ Vector.prototype = {
   },
 
   toAngle() {
-    return {
-      theta: Math.atan2(this.z, this.x),
-      phi: Math.asin(this.y / this.length())
-    };
+    return Vector.fromAngle(Math.atan2(this.z, this.x), Math.asin(this.y / this.length()));
   },
 
   toArray(n) {
@@ -131,7 +128,15 @@ Vector.from = function from(a) {
   return new Vector(a.x, a.y, a.z);
 };
 
-Vector.fromAngle = function fromAngle(theta, phi) {
+Vector.fromAngle = function fromAngle(a, b) {
+  let theta = a;
+  let phi = b;
+
+  if (a instanceof Vector) {
+    theta = a.x;
+    phi = a.y;
+  }
+
   const x = Math.cos(theta) * Math.cos(phi);
   const y = Math.sin(phi);
   const z = Math.sin(theta) * Math.cos(phi);

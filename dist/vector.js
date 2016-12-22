@@ -58,10 +58,7 @@ var Vector = (function () {
       return Vector.subtract(v, this);
     },
     toAngle: function toAngle() {
-      return {
-        theta: Math.atan2(this.z, this.x),
-        phi: Math.asin(this.y / this.length())
-      };
+      return Vector.fromAngle(Math.atan2(this.z, this.x), Math.asin(this.y / this.length()));
     },
     toArray: function toArray(n) {
       return [this.x, this.y, this.z].slice(0, n || 3);
@@ -118,7 +115,17 @@ var Vector = (function () {
     return new Vector(a.x, a.y, a.z);
   };
 
-  Vector.fromAngle = function fromAngle(theta, phi) {
+  Vector.fromAngle = function fromAngle(a, b) {
+    var theta = a;
+    var phi = b;
+
+    if (a instanceof Vector) {
+      console.log(a);
+
+      theta = a.x;
+      phi = a.y;
+    }
+
     var x = Math.cos(theta) * Math.cos(phi);
     var y = Math.sin(phi);
     var z = Math.sin(theta) * Math.cos(phi);
