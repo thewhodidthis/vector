@@ -120,8 +120,6 @@ var Vector = (function () {
     var phi = b;
 
     if (a instanceof Vector) {
-      console.log(a);
-
       theta = a.x;
       phi = a.y;
     }
