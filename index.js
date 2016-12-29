@@ -65,7 +65,7 @@ Vector.prototype = {
 };
 
 Vector.add = function add(a, b, c) {
-  var result = c || b || new Vector();
+  var result = c || new Vector();
 
   if (a instanceof Vector) {
     result.x = b.x + a.x;
@@ -81,7 +81,7 @@ Vector.add = function add(a, b, c) {
 };
 
 Vector.cross = function cross(a, b, c) {
-  var result = c || b || new Vector();
+  var result = c || new Vector();
 
   result.x = b.y * a.z - b.z * a.y;
   result.y = b.z * a.x - b.x * a.z;
@@ -95,7 +95,7 @@ Vector.dist = function dist(a, b) {
 };
 
 Vector.divide = function divide(a, b, c) {
-  var result = c || b || new Vector();
+  var result = c || new Vector();
 
   if (a instanceof Vector) {
     result.x = b.x / a.x;
@@ -157,7 +157,7 @@ Vector.min = function min(a, b) {
 };
 
 Vector.multiply = function multiply(a, b, c) {
-  var result = c || b || new Vector();
+  var result = c || new Vector();
 
   if (a instanceof Vector) {
     result.x = b.x * a.x;
@@ -188,7 +188,7 @@ Vector.rand = function rand() {
 };
 
 Vector.subtract = function subtract(a, b, c) {
-  var result = c || b || new Vector();
+  var result = c || new Vector();
 
   if (a instanceof Vector) {
     result.x = b.x - a.x;
