@@ -9,7 +9,7 @@ var Vector = (function () {
     constructor: Vector,
 
     add: function add(v) {
-      return Vector.add(v, this);
+      return this.reset(Vector.add(this, v));
     },
     angleTo: function angleTo(a) {
       return Math.acos(this.dot(a) / (this.length() * a.length()));
@@ -18,10 +18,10 @@ var Vector = (function () {
       return Vector.from(this);
     },
     cross: function cross(v) {
-      return Vector.cross(v, this);
+      return this.reset(Vector.cross(this, v));
     },
     divide: function divide(v) {
-      return Vector.divide(v, this);
+      return this.reset(Vector.divide(this, v));
     },
     dot: function dot(v) {
       return this.x * v.x + this.y * v.y + this.z * v.z;
@@ -30,7 +30,7 @@ var Vector = (function () {
       return this.x === v.x && this.y === v.y && this.z === v.z;
     },
     invert: function invert() {
-      return Vector.invert(this);
+      return this.reset(Vector.invert(this));
     },
     length: function length() {
       return Math.sqrt(this.dot(this));
@@ -42,20 +42,26 @@ var Vector = (function () {
       return Math.min(Math.min(this.x, this.y), this.z);
     },
     multiply: function multiply(v) {
-      return Vector.multiply(v, this);
+      return this.reset(Vector.multiply(this, v));
     },
     normalize: function normalize() {
       return this.divide(this.length());
     },
-    reset: function reset(x, y, z) {
-      this.x = x || 0;
-      this.y = y || 0;
-      this.z = z || 0;
+    reset: function reset(a, b, c) {
+      if (a instanceof Vector) {
+        this.x = a.x;
+        this.y = a.y;
+        this.z = a.z;
+      } else {
+        this.x = a || 0;
+        this.y = b || 0;
+        this.z = c || 0;
+      }
 
       return this;
     },
     subtract: function subtract(v) {
-      return Vector.subtract(v, this);
+      return this.reset(Vector.subtract(this, v));
     },
     toAngle: function toAngle() {
       return Vector.fromAngle(Math.atan2(this.z, this.x), Math.asin(this.y / this.length()));
@@ -68,14 +74,14 @@ var Vector = (function () {
   Vector.add = function add(a, b, c) {
     var result = c || new Vector();
 
-    if (a instanceof Vector) {
-      result.x = b.x + a.x;
-      result.y = b.y + a.y;
-      result.z = b.z + a.z;
+    if (b instanceof Vector) {
+      result.x = a.x + b.x;
+      result.y = a.y + b.y;
+      result.z = a.z + b.z;
     } else {
-      result.x = b.x + a;
-      result.y = b.y + a;
-      result.z = b.z + a;
+      result.x = a.x + b;
+      result.y = a.y + b;
+      result.z = a.z + b;
     }
 
     return result;
@@ -98,14 +104,14 @@ var Vector = (function () {
   Vector.divide = function divide(a, b, c) {
     var result = c || new Vector();
 
-    if (a instanceof Vector) {
-      result.x = b.x / a.x;
-      result.y = b.y / a.y;
-      result.z = b.z / a.z;
+    if (b instanceof Vector) {
+      result.x = a.x / b.x;
+      result.y = a.y / b.y;
+      result.z = a.z / b.z;
     } else {
-      result.x = b.x / a;
-      result.y = b.y / a;
-      result.z = b.z / a;
+      result.x = a.x / b;
+      result.y = a.y / b;
+      result.z = a.z / b;
     }
 
     return result;
@@ -160,14 +166,14 @@ var Vector = (function () {
   Vector.multiply = function multiply(a, b, c) {
     var result = c || new Vector();
 
-    if (a instanceof Vector) {
-      result.x = b.x * a.x;
-      result.y = b.y * a.y;
-      result.z = b.z * a.z;
+    if (b instanceof Vector) {
+      result.x = a.x * b.x;
+      result.y = a.y * b.y;
+      result.z = a.z * b.z;
     } else {
-      result.x = b.x * a;
-      result.y = b.y * a;
-      result.z = b.z * a;
+      result.x = a.x * b;
+      result.y = a.y * b;
+      result.z = a.z * b;
     }
 
     return result;
@@ -191,14 +197,14 @@ var Vector = (function () {
   Vector.subtract = function subtract(a, b, c) {
     var result = c || new Vector();
 
-    if (a instanceof Vector) {
-      result.x = b.x - a.x;
-      result.y = b.y - a.y;
-      result.z = b.z - a.z;
+    if (b instanceof Vector) {
+      result.x = a.x - b.x;
+      result.y = a.y - b.y;
+      result.z = a.z - b.z;
     } else {
-      result.x = b.x - a;
-      result.y = b.y - a;
-      result.z = b.z - a;
+      result.x = a.x - b;
+      result.y = a.y - b;
+      result.z = a.z - b;
     }
 
     return result;

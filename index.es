@@ -6,7 +6,7 @@ Vector.prototype = {
   constructor: Vector,
 
   add(v) {
-    return Vector.add(v, this);
+    return this.reset(Vector.add(this, v));
   },
 
   angleTo(a) {
@@ -18,11 +18,11 @@ Vector.prototype = {
   },
 
   cross(v) {
-    return Vector.cross(v, this);
+    return this.reset(Vector.cross(this, v));
   },
 
   divide(v) {
-    return Vector.divide(v, this);
+    return this.reset(Vector.divide(this, v));
   },
 
   dot(v) {
@@ -34,7 +34,7 @@ Vector.prototype = {
   },
 
   invert() {
-    return Vector.invert(this);
+    return this.reset(Vector.invert(this));
   },
 
   length() {
@@ -50,23 +50,29 @@ Vector.prototype = {
   },
 
   multiply(v) {
-    return Vector.multiply(v, this);
+    return this.reset(Vector.multiply(this, v));
   },
 
   normalize() {
     return this.divide(this.length());
   },
 
-  reset(x, y, z) {
-    this.x = x || 0;
-    this.y = y || 0;
-    this.z = z || 0;
+  reset(a, b, c) {
+    if (a instanceof Vector) {
+      this.x = a.x;
+      this.y = a.y;
+      this.z = a.z;
+    } else {
+      this.x = a || 0;
+      this.y = b || 0;
+      this.z = c || 0;
+    }
 
     return this;
   },
 
   subtract(v) {
-    return Vector.subtract(v, this);
+    return this.reset(Vector.subtract(this, v));
   },
 
   toAngle() {
@@ -81,14 +87,14 @@ Vector.prototype = {
 Vector.add = function add(a, b, c) {
   const result = c || new Vector();
 
-  if (a instanceof Vector) {
-    result.x = b.x + a.x;
-    result.y = b.y + a.y;
-    result.z = b.z + a.z;
+  if (b instanceof Vector) {
+    result.x = a.x + b.x;
+    result.y = a.y + b.y;
+    result.z = a.z + b.z;
   } else {
-    result.x = b.x + a;
-    result.y = b.y + a;
-    result.z = b.z + a;
+    result.x = a.x + b;
+    result.y = a.y + b;
+    result.z = a.z + b;
   }
 
   return result;
@@ -111,14 +117,14 @@ Vector.dist = function dist(a, b) {
 Vector.divide = function divide(a, b, c) {
   const result = c || new Vector();
 
-  if (a instanceof Vector) {
-    result.x = b.x / a.x;
-    result.y = b.y / a.y;
-    result.z = b.z / a.z;
+  if (b instanceof Vector) {
+    result.x = a.x / b.x;
+    result.y = a.y / b.y;
+    result.z = a.z / b.z;
   } else {
-    result.x = b.x / a;
-    result.y = b.y / a;
-    result.z = b.z / a;
+    result.x = a.x / b;
+    result.y = a.y / b;
+    result.z = a.z / b;
   }
 
   return result;
@@ -173,14 +179,14 @@ Vector.min = function min(a, b) {
 Vector.multiply = function multiply(a, b, c) {
   const result = c || new Vector();
 
-  if (a instanceof Vector) {
-    result.x = b.x * a.x;
-    result.y = b.y * a.y;
-    result.z = b.z * a.z;
+  if (b instanceof Vector) {
+    result.x = a.x * b.x;
+    result.y = a.y * b.y;
+    result.z = a.z * b.z;
   } else {
-    result.x = b.x * a;
-    result.y = b.y * a;
-    result.z = b.z * a;
+    result.x = a.x * b;
+    result.y = a.y * b;
+    result.z = a.z * b;
   }
 
   return result;
@@ -204,14 +210,14 @@ Vector.rand = function rand() {
 Vector.subtract = function subtract(a, b, c) {
   const result = c || new Vector();
 
-  if (a instanceof Vector) {
-    result.x = b.x - a.x;
-    result.y = b.y - a.y;
-    result.z = b.z - a.z;
+  if (b instanceof Vector) {
+    result.x = a.x - b.x;
+    result.y = a.y - b.y;
+    result.z = a.z - b.z;
   } else {
-    result.x = b.x - a;
-    result.y = b.y - a;
-    result.z = b.z - a;
+    result.x = a.x - b;
+    result.y = a.y - b;
+    result.z = a.z - b;
   }
 
   return result;
