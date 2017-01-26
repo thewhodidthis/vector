@@ -6,8 +6,8 @@
     "vector",
     "math"
   ],
-  "jsnext:main": "index.es",
   "main": "index.js",
+  "module": "index.es",
   "homepage": "https://github.com/thewhodidthis/vector#readme",
   "repository": {
     "type": "git",
