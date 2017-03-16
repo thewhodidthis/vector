@@ -16,7 +16,7 @@ var Vector = window.Vector;
 ```
 
 ### Example
-![Screenshot](https://dl.dropboxusercontent.com/u/6084840/fireworks.gif "Screenshot")
+![Screenshot](screenshot.gif?raw=true "Fireworks")
 
 ```js
 'use strict';
