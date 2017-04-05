@@ -1,89 +1,83 @@
-const M = Math;
-const TAU = M.PI * 2;
-const random = M.random;
+// For running callbacks in each direction
+const filter = (fn, v) => Object.keys({ x: 0, y: 0, z: 0 }).map(k => fn(k, v[k] !== undefined ? v[k] : v));
 
-const merge = Object.assign;
+// The extra slot can be useful in 2d even
+// Based on evanw/lightgl.js
+export const Vector3d = (x, y, z) => ({
+  x: x || 0,
+  y: y || 0,
+  z: z || 0,
 
-const Point = { x: 0, y: 0, z: 0 };
-const point = p => merge({ x: p, y: p, z: p }, p);
-
-export const Vector3D = (x, y, z) => merge({ x: x || 0, y: y || 0, z: z || 0 }, {
+  // Scalars
   mag() {
-    return M.sqrt(this.dot(this));
+    return Math.sqrt(this.dot(this));
+  },
+  dist(a) {
+    // Angle to
+    return Math.acos(this.dot(a) / (this.mag() * a.mag()));
   },
   dot(v) {
     return (this.x * v.x) + (this.y * v.y) + (this.z * v.z);
   },
+
+  // Math ops
   add(v) {
-    const p = point(v);
-
-    this.x += p.x;
-    this.y += p.y;
-    this.z += p.z;
+    filter((k, v) => this[k] += v, v);
 
     return this;
   },
-  sub(v) {
-    const p = point(v);
-
-    this.x -= p.x;
-    this.y -= p.y;
-    this.z -= p.z;
+  subtract(v) {
+    filter((k, v) => this[k] -= v, v);
 
     return this;
   },
-  mult(v) {
-    const p = point(v);
-
-    this.x *= p.x;
-    this.y *= p.y;
-    this.z *= p.z;
-
-    return this;
-  },
-  cross(v) {
-    const p = point(v);
-
-    this.x = (p.y * this.z) - (p.z * this.y);
-    this.y = (p.z * this.x) - (p.x * this.z);
-    this.z = (p.x * this.y) - (p.y * this.x);
+  multiply(v) {
+    filter((k, v) => this[k] *= v, v);
 
     return this;
   },
   divide(v) {
-    const p = point(v);
-
-    this.x /= p.x;
-    this.y /= p.y;
-    this.z /= p.z;
+    filter((k, v) => this[k] /= v, v);
 
     return this;
   },
+  cross(v) {
+    this.x = (v.y * this.z) - (v.z * this.y);
+    this.y = (v.z * this.x) - (v.x * this.z);
+    this.z = (v.x * this.y) - (v.y * this.x);
+
+    return this;
+  },
+
+  // Compare
   equals(v) {
     return (this.x === v.x) && (this.y === v.y) && (this.z === v.z);
   },
+
+  // Copy
+  clone() {
+    return Vector3d(this.x, this.y, this.z);
+  },
+
+  // Negate
   invert() {
-    return this.mult(-1);
+    return this.multiply(-1);
   },
-  norm() {
+
+  // Limit
+  normalise() {
     return this.divide(this.mag());
-  },
-  dist(a) {
-    return M.acos(this.dot(a) / (this.mag() * a.mag()));
   },
 });
 
-export const fromAngle = (a, b) => {
-  const theta = a.x || a;
-  const phi = a.y || b;
+export const fromAngle = (theta, phi) => {
+  const x = Math.cos(theta) * Math.cos(phi);
+  const y = Math.sin(phi);
+  const z = Math.sin(theta) * Math.cos(phi);
 
-  const x = M.cos(theta) * M.cos(phi);
-  const y = M.sin(phi);
-  const z = M.sin(theta) * M.cos(phi);
-
-  return Vector(x, y, z);
+  return Vector3d(x, y, z);
 };
 
-export const rand = () => fromAngle(random() * TAU, M.asin((random() * 2) - 1));
+export const rand = () => fromAngle(Math.random() * Math.PI * 2, Math.asin((Math.random() * 2) - 1));
 export const lerp = (a, b, fraction) => b.sub(a).mult(fraction).add(a);
 
