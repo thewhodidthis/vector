@@ -30,10 +30,10 @@
     "lint": "eslint index.es; exit 0",
     "start": "npm run build && npm run build:min",
     "preexample": "npm start",
-    "example": "npm run example:link && npm run example:serve",
-    "example:link": "ln -siv \"$(pwd)/dist/vector.min.js\" example/vector.js",
-    "example:push": "rsync -avruzLPC --exclude=.DS_Store ./example/ $npm_package_config_remote",
+    "example": "npm run example:build && npm run example:serve",
+    "example:build": "find example/ -type d ! -path '*/lib' -exec rollup -o {}/bundle.js -f iife {}/index.js \\;",
     "example:serve": "php -S localhost:8000 -t example/",
+    "example:push": "rsync -avruzLPC --exclude=.DS_Store ./example/ $npm_package_config_remote",
     "build": "rollup -c",
     "build:min": "uglifyjs dist/vector.js -cm > dist/vector.min.js",
     "preversion": "npm start"
@@ -52,6 +52,7 @@
     "eslint-plugin-import": "latest",
     "rollup": "latest",
     "rollup-plugin-babel": "latest",
+    "rollup-watch": "latest",
     "tape": "latest",
     "uglify-js": "latest"
   },
