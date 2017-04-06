@@ -1,5 +1,5 @@
 ## Vector
-> Simple vector operations extracted from [evanw/lightgl.js](https://github.com/evanw/lightgl.js/blob/master/src/vector.js)
+> Simple vector abstraction extracted from [evanw/lightgl.js](https://github.com/evanw/lightgl.js/blob/master/src/vector.js)
 
 ### Setup
 ```sh
@@ -20,11 +20,11 @@ import { Vector3d } from '@thewhodidthis/vector';
 
 // Extend
 const myVector = Object.assign(Vector3d, {
-	min() {
-		return Math.min(Math.min(this.x, this.y), this.z);
-	},
-	max() {
-		return Math.max(Math.max(this.x, this.y), this.z);
-	},
+  min() {
+    return Math.min(Math.min(this.x, this.y), this.z);
+  },
+  max() {
+    return Math.max(Math.max(this.x, this.y), this.z);
+  },
 });
 ```
