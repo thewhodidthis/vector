@@ -3,14 +3,13 @@
 (function () {
   'use strict';
 
-  // For running callbacks in each direction
+  // Reset
 
   var pointFrom = function pointFrom(n) {
     return Object.assign({ x: n, y: n, z: n }, n);
   };
 
   // The extra slot can be useful in 2d even
-  // Based on evanw/lightgl.js
   var Vector3d = function Vector3d(x, y, z) {
     return {
       x: x || 0,
@@ -105,20 +104,21 @@
 
   var thirty = TAU / 12;
 
-  var context = document.getElementById('canvas').getContext('2d');
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  var width = canvas.width,
+      height = canvas.height;
 
-  var w = context.canvas.width;
-  var h = context.canvas.height;
 
-  var center = Vector3d(window.innerWidth, window.innerHeight).multiply(0.5);
   var mouse = Vector3d();
+  var center = Vector3d(window.innerWidth, window.innerHeight).multiply(0.5);
 
   var tick = function tick(fn) {
     return window.requestAnimationFrame(fn);
   };
   var draw = function draw() {
-    var size = Math.max(context.canvas.offsetWidth, context.canvas.offsetHeight);
-    var zoom = Math.max(w, h) / size;
+    var size = Math.max(canvas.offsetWidth, canvas.offsetHeight);
+    var zoom = Math.max(width, height) / size;
 
     var mousePos = mouse.clone().subtract(center).multiply(zoom);
     var x = mousePos.x,
@@ -126,10 +126,10 @@
 
 
     var radius = zoom * size * 0.25;
-    var origin = Vector3d(w, h).multiply(0.5);
+    var origin = Vector3d(width, height).multiply(0.5);
     var target = Vector3d(x, y).normalise().multiply(radius);
 
-    context.clearRect(0, 0, w, h);
+    context.clearRect(0, 0, width, height);
 
     var head = 10;
     var angle = Math.atan2(target.y, target.x);
@@ -139,10 +139,12 @@
     context.moveTo(0, 0);
     context.lineTo(target.x, target.y);
 
-    var x1 = target.x - head * Math.cos(angle - thirty);
-    var x2 = target.x - head * Math.cos(angle + thirty);
-    var y1 = target.y - head * Math.sin(angle - thirty);
-    var y2 = target.y - head * Math.sin(angle + thirty);
+    var a1 = angle - thirty;
+    var a2 = angle + thirty;
+    var x1 = target.x - head * Math.cos(a1);
+    var x2 = target.x - head * Math.cos(a2);
+    var y1 = target.y - head * Math.sin(a1);
+    var y2 = target.y - head * Math.sin(a2);
 
     context.lineTo(x1, y1);
     context.moveTo(target.x, target.y);
