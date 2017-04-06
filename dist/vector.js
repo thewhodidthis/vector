@@ -1,15 +1,12 @@
 (function (exports) {
   'use strict';
 
-  // For running callbacks in each direction
-  var filter = function filter(fn, v) {
-    return Object.keys({ x: 0, y: 0, z: 0 }).map(function (k) {
-      return fn(k, v[k] !== undefined ? v[k] : v);
-    });
+  // Reset
+  var pointFrom = function pointFrom(n) {
+    return Object.assign({ x: n, y: n, z: n }, n);
   };
 
   // The extra slot can be useful in 2d even
-  // Based on evanw/lightgl.js
   var Vector3d = function Vector3d(x, y, z) {
     return {
       x: x || 0,
@@ -31,38 +28,38 @@
 
       // Math ops
       add: function add(v) {
-        var _this = this;
+        var p = pointFrom(v);
 
-        filter(function (k, v) {
-          return _this[k] += v;
-        }, v);
+        this.x += p.x;
+        this.y += p.y;
+        this.z += p.z;
 
         return this;
       },
       subtract: function subtract(v) {
-        var _this2 = this;
+        var p = pointFrom(v);
 
-        filter(function (k, v) {
-          return _this2[k] -= v;
-        }, v);
+        this.x -= p.x;
+        this.y -= p.y;
+        this.z -= p.z;
 
         return this;
       },
       multiply: function multiply(v) {
-        var _this3 = this;
+        var p = pointFrom(v);
 
-        filter(function (k, v) {
-          return _this3[k] *= v;
-        }, v);
+        this.x *= p.x;
+        this.y *= p.y;
+        this.z *= p.z;
 
         return this;
       },
       divide: function divide(v) {
-        var _this4 = this;
+        var p = pointFrom(v);
 
-        filter(function (k, v) {
-          return _this4[k] /= v;
-        }, v);
+        this.x /= p.x;
+        this.y /= p.y;
+        this.z /= p.z;
 
         return this;
       },
@@ -108,8 +105,9 @@
     return Vector3d(x, y, z);
   };
 
+  var TAU = Math.PI * 2;
   var rand = function rand() {
-    return fromAngle(Math.random() * Math.PI * 2, Math.asin(Math.random() * 2 - 1));
+    return fromAngle(Math.random() * TAU, Math.asin(Math.random() * 2 - 1));
   };
   var lerp = function lerp(a, b, fraction) {
     return b.sub(a).mult(fraction).add(a);
@@ -117,6 +115,7 @@
 
   exports.Vector3d = Vector3d;
   exports.fromAngle = fromAngle;
+  exports.TAU = TAU;
   exports.rand = rand;
   exports.lerp = lerp;
 

@@ -1,9 +1,23 @@
 html {
-  overflow: hidden;
+  min-height: 100%;
 }
 
+html,
 body {
+  height: 100%;
+}
+
+body,
+figure {
   margin: 0;
+  background: #000;
+}
+
+figure {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
 }
 
 canvas {
@@ -13,14 +27,14 @@ canvas {
   min-height: 100%;
   background: #000;
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate3d(-50%, -50%, 0);
 }
 
 @media screen and (min-width: 800px) and (min-height: 500px) {
   canvas {
     min-width: 0;
     min-height: 0;
-    max-width: 500px;
-    max-height: 280px;
+    max-width: 400px;
+    max-height: 400px;
   }
 }

@@ -1,8 +1,7 @@
-// For running callbacks in each direction
-const filter = (fn, v) => Object.keys({ x: 0, y: 0, z: 0 }).map(k => fn(k, v[k] !== undefined ? v[k] : v));
+// Reset
+const pointFrom = n => Object.assign({ x: n, y: n, z: n }, n);
 
 // The extra slot can be useful in 2d even
-// Based on evanw/lightgl.js
 export const Vector3d = (x, y, z) => ({
   x: x || 0,
   y: y || 0,
@@ -22,22 +21,38 @@ export const Vector3d = (x, y, z) => ({
 
   // Math ops
   add(v) {
-    filter((k, v) => this[k] += v, v);
+    const p = pointFrom(v);
+
+    this.x += p.x;
+    this.y += p.y;
+    this.z += p.z;
 
     return this;
   },
   subtract(v) {
-    filter((k, v) => this[k] -= v, v);
+    const p = pointFrom(v);
+
+    this.x -= p.x;
+    this.y -= p.y;
+    this.z -= p.z;
 
     return this;
   },
   multiply(v) {
-    filter((k, v) => this[k] *= v, v);
+    const p = pointFrom(v);
+
+    this.x *= p.x;
+    this.y *= p.y;
+    this.z *= p.z;
 
     return this;
   },
   divide(v) {
-    filter((k, v) => this[k] /= v, v);
+    const p = pointFrom(v);
+
+    this.x /= p.x;
+    this.y /= p.y;
+    this.z /= p.z;
 
     return this;
   },
@@ -78,6 +93,7 @@ export const fromAngle = (theta, phi) => {
   return Vector3d(x, y, z);
 };
 
-export const rand = () => fromAngle(Math.random() * Math.PI * 2, Math.asin((Math.random() * 2) - 1));
+export const TAU = Math.PI * 2;
+export const rand = () => fromAngle(Math.random() * TAU, Math.asin((Math.random() * 2) - 1));
 export const lerp = (a, b, fraction) => b.sub(a).mult(fraction).add(a);
 
