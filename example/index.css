@@ -10,7 +10,6 @@ body {
 body,
 figure {
   margin: 0;
-  background: #000;
 }
 
 figure {
@@ -25,7 +24,6 @@ canvas {
   left: 50%;
   min-width: 100%;
   min-height: 100%;
-  background: #000;
   position: absolute;
   transform: translate3d(-50%, -50%, 0);
 }
