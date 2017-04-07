@@ -1,57 +1,80 @@
-import { Vector3d as Vector, TAU } from '../index.es';
+import { createVector as Vector, TAU } from '../index.es';
 
 const thirty = TAU / 12;
 
-const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
-const { width, height } = canvas;
+const createContext = (width, h) => Object.assign(document.createElement('canvas'), {
+  width,
+  height: width || h
+}).getContext('2d');
+
+const createPoints = (c = 0, n = 3) => Array.from({ length: n }).map((point, i) => {
+  const a = (i * TAU) / n;
+  const x = c * Math.cos(a);
+  const y = c * Math.sin(a);
+
+  return { x, y };
+});
+
+const createTip = (size = 100, a = 0, s = 1) => {
+  const center = size * 0.5;
+  const points = createPoints(center);
+  const output = createContext(size);
+
+  output.save();
+  output.translate(center, center);
+  output.rotate(a);
+  output.scale(s, s);
+
+  output.beginPath();
+
+  points.forEach((p) => {
+    output.lineTo(p.x, p.y);
+  });
+
+  output.closePath();
+  output.restore();
+  output.fill();
+
+  return output;
+};
+
+const context = document.getElementById('canvas').getContext('2d');
+const { width, height } = context.canvas;
+
+const center = Vector(window.innerWidth, window.innerHeight).multiply(0.5);
+const origin = Vector(width, height).multiply(0.5);
 
 const mouse = Vector();
-const center = Vector(window.innerWidth, window.innerHeight).multiply(0.5);
 
 const tick = (fn) => window.requestAnimationFrame(fn);
 const draw = () => {
-  const size = Math.max(canvas.offsetWidth, canvas.offsetHeight);
+  const size = Math.max(context.canvas.offsetWidth, context.canvas.offsetHeight);
   const zoom = Math.max(width, height) / size;
+  const stop = zoom * size * 0.25;
+  const tips = createPoints((size * 0.5) - 20, 20);
 
   const mousePos = mouse.clone().subtract(center).multiply(zoom);
   const { x, y } = mousePos;
 
-  const radius = zoom * size * 0.25;
-  const origin = Vector(width, height).multiply(0.5);
-  const target = Vector(x, y).normalise().multiply(radius);
+  const carto = Vector(x, y).normalise().multiply(stop);
+  const angle = Math.atan2(carto.y, carto.x);
 
   context.clearRect(0, 0, width, height);
-
-  const head = 10;
-  const angle = Math.atan2(target.y, target.x);
-
+  context.save();
   context.translate(origin.x, origin.y);
-  context.beginPath();
-  context.moveTo(0, 0);
-  context.lineTo(target.x, target.y);
-
-  const a1 = angle - thirty;
-  const a2 = angle + thirty;
-  const x1 = target.x - head * Math.cos(a1);
-  const x2 = target.x - head * Math.cos(a2)
-  const y1 = target.y - head * Math.sin(a1);
-  const y2 = target.y - head * Math.sin(a2);
-
-  context.lineTo(x1, y1);
-  context.moveTo(target.x, target.y);
-  context.lineTo(x2, y2);
+  context.rotate(angle);
   context.translate(-origin.x, -origin.y);
-  context.stroke();
 
-  const r = Math.min(0.5 * zoom * size - 4, Math.max(radius + 14, mousePos.mag()));
+  tips.forEach((pos, i) => {
+    const { canvas } = createTip(20, pos);
+    const l = origin.x + pos.x - 10;
+    const t = origin.y + pos.y - 10;
 
-  context.beginPath();
-  context.arc(origin.x, origin.y, r, 0, Math.PI * 2);
-  context.closePath();
-  context.stroke();
+    context.drawImage(canvas, l, t);
+  });
 
-  // Repeat
+  context.restore();
+
   tick(draw);
 };
 
@@ -60,10 +83,8 @@ window.addEventListener('resize', () => {
   center.y = window.innerHeight * 0.5;
 });
 
-// Touchmove?
+// Where is touchmove handler?
 window.addEventListener('mousemove', (e) => {
-  e.preventDefault();
-
   mouse.x = e.x;
   mouse.y = e.y;
 });
@@ -71,7 +92,4 @@ window.addEventListener('mousemove', (e) => {
 window.addEventListener('load', () => {
   tick(draw);
 });
-
-context.strokeStyle = '#fff';
-context.strokeWidth = 2;
 

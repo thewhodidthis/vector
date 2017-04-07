@@ -1,5 +1,5 @@
 const test = require('tape');
-const Vector = require('../').Vector3d;
+const Vector = require('../').createVector;
 
 test('will default', (t) => {
   const { x, y, z } = Vector(2);

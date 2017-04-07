@@ -1,5 +1,5 @@
 ## Vector
-> Simple vector abstraction extracted from [evanw/lightgl.js](https://github.com/evanw/lightgl.js/blob/master/src/vector.js)
+> Super basic vector abstraction extracted from [evanw/lightgl.js](https://github.com/evanw/lightgl.js/blob/master/src/vector.js)
 
 ### Setup
 ```sh
@@ -8,10 +8,12 @@ npm install thewhodidthis/vector
 
 ### Usage
 ```js
-const vector = require('@thewhodidthis/vector').Vector3d();
+const vector = require('@thewhodidthis/vector').Vector3d;
 
-// Inspect
-Object.keys(vector).forEach(console.log);
+// Innards
+Object.keys(vector).forEach((k) => {
+  console.log(k);
+});
 ```
 
 ### Example

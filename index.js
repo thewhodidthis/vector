@@ -2,120 +2,132 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Reset
+// Economize a little when uglifying
+var M = Math;
+var merge = Object.assign;
+
+// Expects vector-like `Object` or `Number`
 var pointFrom = function pointFrom(n) {
-  return Object.assign({ x: n, y: n, z: n }, n);
+  return merge({ x: n, y: n, z: n }, n);
 };
 
 // The extra slot can be useful in 2d even
-var Vector3d = function Vector3d(x, y, z) {
-  return {
-    x: x || 0,
-    y: y || 0,
-    z: z || 0,
+var Vector3d = {
+  x: 0,
+  y: 0,
+  z: 0,
 
-    // Scalars
-    mag: function mag() {
-      return Math.sqrt(this.dot(this));
-    },
-    dist: function dist(a) {
-      // Angle to
-      return Math.acos(this.dot(a) / (this.mag() * a.mag()));
-    },
-    dot: function dot(v) {
-      return this.x * v.x + this.y * v.y + this.z * v.z;
-    },
-
-
-    // Math ops
-    add: function add(v) {
-      var p = pointFrom(v);
-
-      this.x += p.x;
-      this.y += p.y;
-      this.z += p.z;
-
-      return this;
-    },
-    subtract: function subtract(v) {
-      var p = pointFrom(v);
-
-      this.x -= p.x;
-      this.y -= p.y;
-      this.z -= p.z;
-
-      return this;
-    },
-    multiply: function multiply(v) {
-      var p = pointFrom(v);
-
-      this.x *= p.x;
-      this.y *= p.y;
-      this.z *= p.z;
-
-      return this;
-    },
-    divide: function divide(v) {
-      var p = pointFrom(v);
-
-      this.x /= p.x;
-      this.y /= p.y;
-      this.z /= p.z;
-
-      return this;
-    },
-    cross: function cross(v) {
-      this.x = v.y * this.z - v.z * this.y;
-      this.y = v.z * this.x - v.x * this.z;
-      this.z = v.x * this.y - v.y * this.x;
-
-      return this;
-    },
+  // Scalars
+  mag: function mag() {
+    return M.sqrt(this.dot(this));
+  },
+  dist: function dist(a) {
+    // Angle to
+    return M.acos(this.dot(a) / (this.mag() * a.mag()));
+  },
+  dot: function dot(v) {
+    return this.x * v.x + this.y * v.y + this.z * v.z;
+  },
 
 
-    // Compare
-    equals: function equals(v) {
-      return this.x === v.x && this.y === v.y && this.z === v.z;
-    },
+  // Math ops
+  add: function add(v) {
+    var p = pointFrom(v);
+
+    this.x += p.x;
+    this.y += p.y;
+    this.z += p.z;
+
+    return this;
+  },
+  subtract: function subtract(v) {
+    var p = pointFrom(v);
+
+    this.x -= p.x;
+    this.y -= p.y;
+    this.z -= p.z;
+
+    return this;
+  },
+  multiply: function multiply(v) {
+    var p = pointFrom(v);
+
+    this.x *= p.x;
+    this.y *= p.y;
+    this.z *= p.z;
+
+    return this;
+  },
+  divide: function divide(v) {
+    var p = pointFrom(v);
+
+    this.x /= p.x;
+    this.y /= p.y;
+    this.z /= p.z;
+
+    return this;
+  },
+  cross: function cross(v) {
+    this.x = v.y * this.z - v.z * this.y;
+    this.y = v.z * this.x - v.x * this.z;
+    this.z = v.x * this.y - v.y * this.x;
+
+    return this;
+  },
 
 
-    // Copy
-    clone: function clone() {
-      return Vector3d(this.x, this.y, this.z);
-    },
+  // Compare
+  equals: function equals(v) {
+    return this.x === v.x && this.y === v.y && this.z === v.z;
+  },
 
 
-    // Negate
-    invert: function invert() {
-      return this.multiply(-1);
-    },
+  // Copy
+  clone: function clone() {
+    return merge({}, this);
+  },
 
 
-    // Limit
-    normalise: function normalise() {
-      return this.divide(this.mag());
-    }
-  };
+  // Negate
+  invert: function invert() {
+    return this.multiply(-1);
+  },
+
+
+  // Limit
+  normalise: function normalise() {
+    return this.divide(this.mag());
+  }
 };
 
-var fromAngle = function fromAngle(theta, phi) {
-  var x = Math.cos(theta) * Math.cos(phi);
-  var y = Math.sin(phi);
-  var z = Math.sin(theta) * Math.cos(phi);
-
-  return Vector3d(x, y, z);
+// Feels clunky somewhat, but going for default params adds way too many extras post transpile
+var createVector = function createVector(x, y, z) {
+  return merge({}, Vector3d, { x: x || 0, y: y || 0, z: z || 0 });
 };
 
-var TAU = Math.PI * 2;
+// This is math I don't care to understand
+var fromAngles = function fromAngles(theta, phi) {
+  var x = M.cos(theta) * M.cos(phi);
+  var y = M.sin(phi);
+  var z = M.sin(theta) * M.cos(phi);
+
+  return createVector(x, y, z);
+};
+
+// Because hand in hand
+var TAU = M.PI * 2;
+
+// Might've been attached to some sort of a constructor, but this way ignored by default when bundling
 var rand = function rand() {
-  return fromAngle(Math.random() * TAU, Math.asin(Math.random() * 2 - 1));
+  return fromAngles(M.random() * TAU, M.asin(M.random() * 2 - 1));
 };
 var lerp = function lerp(a, b, fraction) {
   return b.sub(a).mult(fraction).add(a);
 };
 
 exports.Vector3d = Vector3d;
-exports.fromAngle = fromAngle;
+exports.createVector = createVector;
+exports.fromAngles = fromAngles;
 exports.TAU = TAU;
 exports.rand = rand;
 exports.lerp = lerp;
