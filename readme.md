@@ -23,10 +23,10 @@ import { Vector3d } from '@thewhodidthis/vector';
 // Extend
 const myVector = Object.assign(Vector3d, {
   min() {
-    return Math.min(Math.min(this.x, this.y), this.z);
+    return Math.min(...[this.x, this.y, this.z]);
   },
   max() {
-    return Math.max(Math.max(this.x, this.y), this.z);
+    return Math.max(...[this.x, this.y, this.z]);
   },
 });
 ```
