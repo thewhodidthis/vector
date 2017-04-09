@@ -77,5 +77,5 @@ export const Vector2d = {
   },
 };
 
-export const createVector = (x, y) => Object.assign({}, Vector2d, { x, y: y || 0 });
+export const createVector = (x, y) => Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
 

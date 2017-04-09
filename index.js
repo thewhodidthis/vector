@@ -89,7 +89,7 @@ var Vector2d = {
 };
 
 var createVector = function createVector(x, y) {
-  return Object.assign({}, Vector2d, { x: x, y: y || 0 });
+  return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
 };
 
 exports.Vector2d = Vector2d;
