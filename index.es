@@ -11,7 +11,7 @@ export const Vector2d = {
     return Math.sqrt(this.dot(this));
   },
   dist(a) {
-    // Angle to
+    // Angle between
     return Math.acos(this.dot(a) / (this.mag() * a.mag()));
   },
   angle() {
@@ -71,7 +71,7 @@ export const Vector2d = {
     return this.multiply(-1);
   },
 
-  // Limit
+  // Scale
   normalise() {
     return this.divide(this.mag());
   },

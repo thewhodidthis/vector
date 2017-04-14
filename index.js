@@ -17,7 +17,7 @@ var Vector2d = {
     return Math.sqrt(this.dot(this));
   },
   dist: function dist(a) {
-    // Angle to
+    // Angle between
     return Math.acos(this.dot(a) / (this.mag() * a.mag()));
   },
   angle: function angle() {
@@ -82,7 +82,7 @@ var Vector2d = {
   },
 
 
-  // Limit
+  // Scale
   normalise: function normalise() {
     return this.divide(this.mag());
   }
