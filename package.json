@@ -28,6 +28,7 @@
     "clear:dist": "rm -rf dist/",
     "clear:logs": "rm -f *.log",
     "lint": "eslint index.es; exit 0",
+    "lint:example": "eslint example/index.js; exit 0",
     "start": "npm run build && npm run build:min",
     "preexample": "npm start",
     "example": "npm run example:build && npm run example:serve",
