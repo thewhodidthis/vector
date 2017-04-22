@@ -28,3 +28,11 @@ test('will invert', (t) => {
   t.end();
 });
 
+test('will operate', (t) => {
+  const v1 = Vector(1, 1);
+  const v2 = v1.multiply(v1);
+  const v3 = v1.mag();
+
+  console.log(v2.x, v2.y, v3);
+  t.end();
+});
