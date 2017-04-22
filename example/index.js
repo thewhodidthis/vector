@@ -1,38 +1,22 @@
-import { createVector as Vector, TAU } from '../index.es';
-
-const thirty = TAU / 12;
+import { createVector as v2 } from '../index.es';
 
 const createContext = (width, h) => Object.assign(document.createElement('canvas'), {
   width,
-  height: width || h
+  height: width || h,
 }).getContext('2d');
 
-const createPoints = (c = 0, n = 3) => Array.from({ length: n }).map((point, i) => {
-  const a = (i * TAU) / n;
-  const x = c * Math.cos(a);
-  const y = c * Math.sin(a);
+const Grid = (n, k = n) => Array.from({ length: n * k }).map((p, i) => v2(i % n, Math.floor(i / k)));
 
-  return { x, y };
-});
+const Line = (a = 0, w = 50, h = 50) => {
+  const output = createContext(w, h);
+  const x = w * 0.5;
+  const y = h * 0.5;
 
-const createTip = (size = 100, a = 0, s = 1) => {
-  const center = size * 0.5;
-  const points = createPoints(center);
-  const output = createContext(size);
-
-  output.save();
-  output.translate(center, center);
+  output.translate(x, y);
   output.rotate(a);
-  output.scale(s, s);
 
-  output.beginPath();
-
-  points.forEach((p) => {
-    output.lineTo(p.x, p.y);
-  });
-
-  output.closePath();
-  output.restore();
+  output.fillStyle = '#000';
+  output.fillRect(0, -1, y, 2);
   output.fill();
 
   return output;
@@ -41,52 +25,44 @@ const createTip = (size = 100, a = 0, s = 1) => {
 const context = document.getElementById('canvas').getContext('2d');
 const { width, height } = context.canvas;
 
-const center = Vector(window.innerWidth, window.innerHeight).multiply(0.5);
-const origin = Vector(width, height).multiply(0.5);
+// Mid window
+const center = v2(window.innerWidth, window.innerHeight).multiply(0.5);
 
-const mouse = Vector();
+// Mid canvas
+const origin = v2(width, height).multiply(0.5);
 
-const tick = (fn) => window.requestAnimationFrame(fn);
+// Mouse position
+const needle = center.clone();
+
+const rows = 10;
+const cell = v2(width, height).divide(rows);
+const grid = Grid(rows).map(p => p.multiply(cell));
+const half = cell.clone().multiply(0.5);
+
+const tick = fn => window.requestAnimationFrame(fn);
 const draw = () => {
-  const size = Math.max(context.canvas.offsetWidth, context.canvas.offsetHeight);
-  const zoom = Math.max(width, height) / size;
-  const stop = zoom * size * 0.25;
-  const tips = createPoints((size * 0.5) - 20, 20);
-
-  const mousePos = mouse.clone().subtract(center).multiply(zoom);
-  const { x, y } = mousePos;
-
-  const carto = Vector(x, y).normalise().multiply(stop);
-  const angle = Math.atan2(carto.y, carto.x);
-
   context.clearRect(0, 0, width, height);
-  context.save();
-  context.translate(origin.x, origin.y);
-  context.rotate(angle);
-  context.translate(-origin.x, -origin.y);
 
-  tips.forEach((pos, i) => {
-    const { canvas } = createTip(20, pos);
-    const l = origin.x + pos.x - 10;
-    const t = origin.y + pos.y - 10;
+  grid.forEach((p) => {
+    const t = p.clone().add(half).subtract(origin);
+    const a = needle.clone().subtract(center).subtract(t).angle();
+    const l = Line(a, cell.x, cell.y);
 
-    context.drawImage(canvas, l, t);
+    context.drawImage(l.canvas, p.x, p.y);
   });
-
-  context.restore();
 
   tick(draw);
 };
 
+// Where is the touchmove handler?
+window.addEventListener('mousemove', (e) => {
+  needle.x = e.x;
+  needle.y = e.y;
+});
+
 window.addEventListener('resize', () => {
   center.x = window.innerWidth * 0.5;
   center.y = window.innerHeight * 0.5;
-});
-
-// Where is touchmove handler?
-window.addEventListener('mousemove', (e) => {
-  mouse.x = e.x;
-  mouse.y = e.y;
 });
 
 window.addEventListener('load', () => {

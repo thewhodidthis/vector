@@ -3,42 +3,40 @@
 (function () {
   'use strict';
 
-  // Economize a little when uglifying
-
-  var M = Math;
-  var merge = Object.assign;
-
   // Expects vector-like `Object` or `Number`
+
   var pointFrom = function pointFrom(n) {
-    return merge({ x: n, y: n, z: n }, n);
+    return Object.assign({ x: n, y: n }, n);
   };
 
-  // The extra slot can be useful in 2d even
-  var Vector3d = {
+  // For composing with
+  var Vector2d = {
     x: 0,
     y: 0,
-    z: 0,
 
     // Scalars
     mag: function mag() {
-      return M.sqrt(this.dot(this));
+      return Math.sqrt(this.dot(this));
     },
     dist: function dist(a) {
-      // Angle to
-      return M.acos(this.dot(a) / (this.mag() * a.mag()));
+      // Angle between
+      return Math.acos(this.dot(a) / (this.mag() * a.mag()));
+    },
+    angle: function angle() {
+      // To angle
+      return Math.atan2(this.y, this.x);
     },
     dot: function dot(v) {
-      return this.x * v.x + this.y * v.y + this.z * v.z;
+      return this.x * v.x + this.y * v.y;
     },
 
 
-    // Math ops
+    // Math
     add: function add(v) {
       var p = pointFrom(v);
 
       this.x += p.x;
       this.y += p.y;
-      this.z += p.z;
 
       return this;
     },
@@ -47,7 +45,6 @@
 
       this.x -= p.x;
       this.y -= p.y;
-      this.z -= p.z;
 
       return this;
     },
@@ -56,7 +53,6 @@
 
       this.x *= p.x;
       this.y *= p.y;
-      this.z *= p.z;
 
       return this;
     },
@@ -65,28 +61,20 @@
 
       this.x /= p.x;
       this.y /= p.y;
-      this.z /= p.z;
 
       return this;
-    },
-    cross: function cross(v) {
-      this.x = v.y * this.z - v.z * this.y;
-      this.y = v.z * this.x - v.x * this.z;
-      this.z = v.x * this.y - v.y * this.x;
-
-      return this;
-    },
-
-
-    // Compare
-    equals: function equals(v) {
-      return this.x === v.x && this.y === v.y && this.z === v.z;
     },
 
 
     // Copy
     clone: function clone() {
-      return merge({}, this);
+      return Object.assign({}, this);
+    },
+
+
+    // Compare
+    equals: function equals(v) {
+      return this.x === v.x && this.y === v.y;
     },
 
 
@@ -96,24 +84,15 @@
     },
 
 
-    // Limit
+    // Scale
     normalise: function normalise() {
       return this.divide(this.mag());
     }
   };
 
-  // Feels clunky somewhat, but going for default params adds way too many extras post transpile
-  var createVector = function createVector(x, y, z) {
-    return merge({}, Vector3d, { x: x || 0, y: y || 0, z: z || 0 });
+  var createVector = function createVector(x, y) {
+    return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
   };
-
-  // This is math I don't care to understand
-
-
-  // Because hand in hand
-  var TAU = M.PI * 2;
-
-  // Might've been attached to some sort of a constructor, but this way ignored by default when bundling
 
   var createContext = function createContext(width, h) {
     return Object.assign(document.createElement('canvas'), {
@@ -122,40 +101,27 @@
     }).getContext('2d');
   };
 
-  var createPoints = function createPoints() {
-    var c = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3;
-    return Array.from({ length: n }).map(function (point, i) {
-      var a = i * TAU / n;
-      var x = c * Math.cos(a);
-      var y = c * Math.sin(a);
-
-      return { x: x, y: y };
+  var Grid = function Grid(n) {
+    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : n;
+    return Array.from({ length: n * k }).map(function (p, i) {
+      return createVector(i % n, Math.floor(i / k));
     });
   };
 
-  var createTip = function createTip() {
-    var size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
-    var a = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    var s = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+  var Line = function Line() {
+    var a = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    var w = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 50;
+    var h = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 50;
 
-    var center = size * 0.5;
-    var points = createPoints(center);
-    var output = createContext(size);
+    var output = createContext(w, h);
+    var x = w * 0.5;
+    var y = h * 0.5;
 
-    output.save();
-    output.translate(center, center);
+    output.translate(x, y);
     output.rotate(a);
-    output.scale(s, s);
 
-    output.beginPath();
-
-    points.forEach(function (p) {
-      output.lineTo(p.x, p.y);
-    });
-
-    output.closePath();
-    output.restore();
+    output.fillStyle = '#000';
+    output.fillRect(0, -1, y, 2);
     output.fill();
 
     return output;
@@ -166,59 +132,49 @@
       width = _context$canvas.width,
       height = _context$canvas.height;
 
+  // Mid window
 
   var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
+
+  // Mid canvas
   var origin = createVector(width, height).multiply(0.5);
 
-  var mouse = createVector();
+  // Mouse position
+  var needle = center.clone();
+
+  var rows = 10;
+  var cell = createVector(width, height).divide(rows);
+  var grid = Grid(rows).map(function (p) {
+    return p.multiply(cell);
+  });
+  var half = cell.clone().multiply(0.5);
 
   var tick = function tick(fn) {
     return window.requestAnimationFrame(fn);
   };
   var draw = function draw() {
-    var size = Math.max(context.canvas.offsetWidth, context.canvas.offsetHeight);
-    var zoom = Math.max(width, height) / size;
-    var stop = zoom * size * 0.25;
-    var tips = createPoints(size * 0.5 - 20, 20);
-
-    var mousePos = mouse.clone().subtract(center).multiply(zoom);
-    var x = mousePos.x,
-        y = mousePos.y;
-
-
-    var carto = createVector(x, y).normalise().multiply(stop);
-    var angle = Math.atan2(carto.y, carto.x);
-
     context.clearRect(0, 0, width, height);
-    context.save();
-    context.translate(origin.x, origin.y);
-    context.rotate(angle);
-    context.translate(-origin.x, -origin.y);
 
-    tips.forEach(function (pos, i) {
-      var _createTip = createTip(20, pos),
-          canvas = _createTip.canvas;
+    grid.forEach(function (p) {
+      var t = p.clone().add(half).subtract(origin);
+      var a = needle.clone().subtract(center).subtract(t).angle();
+      var l = Line(a, cell.x, cell.y);
 
-      var l = origin.x + pos.x - 10;
-      var t = origin.y + pos.y - 10;
-
-      context.drawImage(canvas, l, t);
+      context.drawImage(l.canvas, p.x, p.y);
     });
-
-    context.restore();
 
     tick(draw);
   };
 
+  // Where is the touchmove handler?
+  window.addEventListener('mousemove', function (e) {
+    needle.x = e.x;
+    needle.y = e.y;
+  });
+
   window.addEventListener('resize', function () {
     center.x = window.innerWidth * 0.5;
     center.y = window.innerHeight * 0.5;
-  });
-
-  // Where is touchmove handler?
-  window.addEventListener('mousemove', function (e) {
-    mouse.x = e.x;
-    mouse.y = e.y;
   });
 
   window.addEventListener('load', function () {
