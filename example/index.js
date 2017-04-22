@@ -2,12 +2,11 @@ import { createVector as v2 } from '../index.es';
 
 const createContext = (width, h) => Object.assign(document.createElement('canvas'), {
   width,
-  height: width || h,
+  height: h,
 }).getContext('2d');
 
-const Grid = (n, k = n) => Array.from({ length: n * k }).map((p, i) => v2(i % n, Math.floor(i / k)));
-
-const Line = (a = 0, w = 50, h = 50) => {
+const Grid = (n, k) => Array.from({ length: n * k }).map((p, i) => v2(i % n, Math.floor(i / k)));
+const Line = (a, w, h) => {
   const output = createContext(w, h);
   const x = w * 0.5;
   const y = h * 0.5;
@@ -22,8 +21,9 @@ const Line = (a = 0, w = 50, h = 50) => {
   return output;
 };
 
-const context = document.getElementById('canvas').getContext('2d');
-const { width, height } = context.canvas;
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
+const { width, height } = canvas;
 
 // Mid window
 const center = v2(window.innerWidth, window.innerHeight).multiply(0.5);
@@ -34,18 +34,23 @@ const origin = v2(width, height).multiply(0.5);
 // Mouse position
 const needle = center.clone();
 
+// Instead of cloning
+const from = v => v2(v.x, v.y);
+
 const rows = 10;
+const cols = rows;
 const cell = v2(width, height).divide(rows);
-const grid = Grid(rows).map(p => p.multiply(cell));
 const half = cell.clone().multiply(0.5);
+const grid = Grid(rows, cols).map(p => p.multiply(cell));
+const peas = grid.map(p => from(p).add(half).subtract(origin));
 
 const tick = fn => window.requestAnimationFrame(fn);
 const draw = () => {
   context.clearRect(0, 0, width, height);
 
-  grid.forEach((p) => {
-    const t = p.clone().add(half).subtract(origin);
-    const a = needle.clone().subtract(center).subtract(t).angle();
+  grid.forEach((p, i) => {
+    const c = peas[i];
+    const a = needle.clone().subtract(center).subtract(c).angle();
     const l = Line(a, cell.x, cell.y);
 
     context.drawImage(l.canvas, p.x, p.y);
@@ -54,7 +59,6 @@ const draw = () => {
   tick(draw);
 };
 
-// Where is the touchmove handler?
 window.addEventListener('mousemove', (e) => {
   needle.x = e.x;
   needle.y = e.y;

@@ -97,22 +97,16 @@
   var createContext = function createContext(width, h) {
     return Object.assign(document.createElement('canvas'), {
       width: width,
-      height: width || h
+      height: h
     }).getContext('2d');
   };
 
-  var Grid = function Grid(n) {
-    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : n;
+  var Grid = function Grid(n, k) {
     return Array.from({ length: n * k }).map(function (p, i) {
       return createVector(i % n, Math.floor(i / k));
     });
   };
-
-  var Line = function Line() {
-    var a = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    var w = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 50;
-    var h = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 50;
-
+  var Line = function Line(a, w, h) {
     var output = createContext(w, h);
     var x = w * 0.5;
     var y = h * 0.5;
@@ -127,10 +121,10 @@
     return output;
   };
 
-  var context = document.getElementById('canvas').getContext('2d');
-  var _context$canvas = context.canvas,
-      width = _context$canvas.width,
-      height = _context$canvas.height;
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  var width = canvas.width,
+      height = canvas.height;
 
   // Mid window
 
@@ -142,12 +136,21 @@
   // Mouse position
   var needle = center.clone();
 
+  // Instead of cloning
+  var from = function from(v) {
+    return createVector(v.x, v.y);
+  };
+
   var rows = 10;
+  var cols = rows;
   var cell = createVector(width, height).divide(rows);
-  var grid = Grid(rows).map(function (p) {
+  var half = cell.clone().multiply(0.5);
+  var grid = Grid(rows, cols).map(function (p) {
     return p.multiply(cell);
   });
-  var half = cell.clone().multiply(0.5);
+  var peas = grid.map(function (p) {
+    return from(p).add(half).subtract(origin);
+  });
 
   var tick = function tick(fn) {
     return window.requestAnimationFrame(fn);
@@ -155,9 +158,9 @@
   var draw = function draw() {
     context.clearRect(0, 0, width, height);
 
-    grid.forEach(function (p) {
-      var t = p.clone().add(half).subtract(origin);
-      var a = needle.clone().subtract(center).subtract(t).angle();
+    grid.forEach(function (p, i) {
+      var c = peas[i];
+      var a = needle.clone().subtract(center).subtract(c).angle();
       var l = Line(a, cell.x, cell.y);
 
       context.drawImage(l.canvas, p.x, p.y);
@@ -166,7 +169,6 @@
     tick(draw);
   };
 
-  // Where is the touchmove handler?
   window.addEventListener('mousemove', function (e) {
     needle.x = e.x;
     needle.y = e.y;

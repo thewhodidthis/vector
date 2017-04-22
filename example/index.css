@@ -16,7 +16,7 @@ body::before,
 body::after {
   z-index: 1;
   content: "";
-  background: red;
+  background: #f00;
   position: absolute;
 }
 
