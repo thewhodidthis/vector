@@ -94,27 +94,30 @@
     return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
   };
 
-  var Grid = function Grid(n, k) {
-    return Array.from({ length: n * k }).map(function (p, i) {
-      return createVector(i % n, Math.floor(i / k));
-    });
-  };
-
   var canvas = document.getElementById('canvas');
   var context = canvas.getContext('2d');
   var width = canvas.width,
       height = canvas.height;
 
+  // Instead of cloning
 
+  var vectorFrom = function vectorFrom(v) {
+    return createVector(v.x, v.y);
+  };
+  var createGrid = function createGrid(n, k) {
+    return Array.from({ length: n * k }).map(function (p, i) {
+      return createVector(i % n, Math.floor(i / k));
+    });
+  };
   var getMouseSpeed = function getMouseSpeed() {
     return createVector(width / canvas.offsetWidth, height / canvas.offsetHeight);
   };
 
-  // Mid window
-  var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
-
   // Mid canvas
   var origin = createVector(width, height).multiply(0.5);
+
+  // Mid window
+  var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
 
   // Mouse position
   var needle = center.clone();
@@ -122,18 +125,16 @@
   // For scaling mouse position
   var mSpeed = getMouseSpeed();
 
-  // Instead of cloning
-  var from = function from(v) {
-    return createVector(v.x, v.y);
-  };
-
   var rows = 20;
   var cols = rows;
   var cell = createVector(width, height).divide(rows);
-  var half = cell.clone().multiply(0.5);
+  var halfCell = vectorFrom(cell).multiply(0.5);
 
-  var grid = Grid(rows, cols).map(function (p) {
-    return p.multiply(cell).add(half);
+  var grid = createGrid(rows, cols).map(function (p) {
+    return p.multiply(cell).add(halfCell);
+  });
+  var peas = grid.map(function (p) {
+    return vectorFrom(p).subtract(origin);
   });
 
   var tick = function tick(fn) {
@@ -143,16 +144,14 @@
     context.clearRect(0, 0, width, height);
     context.beginPath();
 
-    grid.forEach(function (p) {
-      var t = from(p).subtract(origin);
-      var m = needle.clone().subtract(center).multiply(mSpeed).subtract(t);
-      var a = m.angle();
+    grid.forEach(function (p, i) {
+      var angle = vectorFrom(needle).subtract(center).multiply(mSpeed).subtract(peas[i]).angle();
 
       context.save();
       context.translate(p.x, p.y);
-      context.rotate(a);
+      context.rotate(angle);
       context.moveTo(0, 0);
-      context.lineTo(half.y, 0);
+      context.lineTo(halfCell.y, 0);
       context.restore();
     });
 
@@ -175,10 +174,6 @@
   });
 
   window.addEventListener('load', function () {
-    tick(draw);
-  });
-
-  document.addEventListener('click', function () {
     tick(draw);
   });
 })();
