@@ -1,69 +1,93 @@
-import { createVector as v2 } from '../index.es';
+import { createVector as Vector } from '../index.es';
+
+// Instead of cloning
+const vectorFrom = v => Vector(v.x, v.y);
+
+// Get grid points array
+const createGrid = (n, k) => Array.from({ length: n * k }).map((p, i) => Vector(i % n, Math.floor(i / k)));
 
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
-const { width, height } = canvas;
 
-// Instead of cloning
-const vectorFrom = v => v2(v.x, v.y);
-const createGrid = (n, k) => Array.from({ length: n * k }).map((p, i) => v2(i % n, Math.floor(i / k)));
-const getMouseSpeed = () => v2(width / canvas.offsetWidth, height / canvas.offsetHeight);
+let { width, height, offsetWidth, offsetHeight } = canvas;
+let innerW = window.innerWidth;
+let innerH = window.innerHeight
 
 // Mid canvas
-const origin = v2(width, height).multiply(0.5);
+const origin = Vector(width, height).multiply(0.5);
 
-// Mid window
-const center = v2(window.innerWidth, window.innerHeight).multiply(0.5);
+// Track mouse position
+const needle = Vector();
 
-// Mouse position
-const needle = center.clone();
-
-// For scaling mouse position
-let mSpeed = getMouseSpeed();
-
-const rows = 20;
+const rows = 8;
 const cols = rows;
-const cell = v2(width, height).divide(rows);
+const cell = Vector(width, height).divide(rows);
 const halfCell = vectorFrom(cell).multiply(0.5);
 
 const grid = createGrid(rows, cols).map(p => p.multiply(cell).add(halfCell));
-const peas = grid.map(p => vectorFrom(p).subtract(origin));
+const gridFromOrigin = grid.map(p => vectorFrom(p).subtract(origin));
 
-const tick = fn => window.requestAnimationFrame(fn);
-const draw = () => {
+const pattern = document.createElement('canvas').getContext('2d');
+
+pattern.font = `${cell.x}px monospace`;
+pattern.textBaseline = 'middle';
+pattern.fillText('\u2192', 0, cell.x * 0.25);
+
+context.fillStyle = context.createPattern(pattern.canvas, 'repeat');
+
+const repeat = fn => window.requestAnimationFrame(fn);
+const render = () => {
+  const bounds = Vector(offsetWidth, offsetHeight);
+  const mspeed = Vector(width, height).divide(bounds);
+  const center = Vector(innerW, innerH).multiply(0.5);
+
   context.clearRect(0, 0, width, height);
-  context.beginPath();
 
   grid.forEach((p, i) => {
-    const angle = vectorFrom(needle).subtract(center).multiply(mSpeed).subtract(peas[i]).angle();
+    const point = gridFromOrigin[i];
+    const angle = vectorFrom(needle).subtract(center).multiply(mspeed).subtract(point).angle();
 
     context.save();
     context.translate(p.x, p.y);
     context.rotate(angle);
-    context.moveTo(0, 0);
-    context.lineTo(halfCell.y, 0);
+    context.translate(-halfCell.x, -halfCell.y);
+    context.fillRect(0, 0, cell.x, cell.y);
     context.restore();
   });
 
-  context.closePath();
-  context.stroke();
-
-  tick(draw);
+  repeat(render);
 };
 
-window.addEventListener('mousemove', (e) => {
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  needle.x = e.pageX;
+  needle.y = e.pageY;
+});
+
+document.addEventListener('mousemove', (e) => {
+  e.preventDefault();
+
   needle.x = e.x;
   needle.y = e.y;
 });
 
-window.addEventListener('resize', () => {
-  center.x = window.innerWidth * 0.5;
-  center.y = window.innerHeight * 0.5;
+let resizeTimer;
 
-  mSpeed = getMouseSpeed();
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+
+  resizeTimer = setTimeout(() => {
+    innerW = window.innerWidth;
+    innerH = window.innerHeight;
+
+    offsetWidth = canvas.offsetWidth;
+    offsetHeight = canvas.offsetHeight;
+  }, 250);
 });
 
 window.addEventListener('load', () => {
-  tick(draw);
+  repeat(render);
 });
 

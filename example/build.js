@@ -94,38 +94,36 @@
     return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
   };
 
-  var canvas = document.getElementById('canvas');
-  var context = canvas.getContext('2d');
-  var width = canvas.width,
-      height = canvas.height;
-
   // Instead of cloning
-
   var vectorFrom = function vectorFrom(v) {
     return createVector(v.x, v.y);
   };
+
+  // Get grid points array
   var createGrid = function createGrid(n, k) {
     return Array.from({ length: n * k }).map(function (p, i) {
       return createVector(i % n, Math.floor(i / k));
     });
   };
-  var getMouseSpeed = function getMouseSpeed() {
-    return createVector(width / canvas.offsetWidth, height / canvas.offsetHeight);
-  };
+
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+
+  var width = canvas.width,
+      height = canvas.height,
+      offsetWidth = canvas.offsetWidth,
+      offsetHeight = canvas.offsetHeight;
+
+  var innerW = window.innerWidth;
+  var innerH = window.innerHeight;
 
   // Mid canvas
   var origin = createVector(width, height).multiply(0.5);
 
-  // Mid window
-  var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
+  // Track mouse position
+  var needle = createVector();
 
-  // Mouse position
-  var needle = center.clone();
-
-  // For scaling mouse position
-  var mSpeed = getMouseSpeed();
-
-  var rows = 20;
+  var rows = 8;
   var cols = rows;
   var cell = createVector(width, height).divide(rows);
   var halfCell = vectorFrom(cell).multiply(0.5);
@@ -133,47 +131,73 @@
   var grid = createGrid(rows, cols).map(function (p) {
     return p.multiply(cell).add(halfCell);
   });
-  var peas = grid.map(function (p) {
+  var gridFromOrigin = grid.map(function (p) {
     return vectorFrom(p).subtract(origin);
   });
 
-  var tick = function tick(fn) {
+  var pattern = document.createElement('canvas').getContext('2d');
+
+  pattern.font = cell.x + 'px monospace';
+  pattern.textBaseline = 'middle';
+  pattern.fillText('\u2192', 0, cell.x * 0.25);
+
+  context.fillStyle = context.createPattern(pattern.canvas, 'repeat');
+
+  var repeat = function repeat(fn) {
     return window.requestAnimationFrame(fn);
   };
-  var draw = function draw() {
+  var render = function render() {
+    var bounds = createVector(offsetWidth, offsetHeight);
+    var mspeed = createVector(width, height).divide(bounds);
+    var center = createVector(innerW, innerH).multiply(0.5);
+
     context.clearRect(0, 0, width, height);
-    context.beginPath();
 
     grid.forEach(function (p, i) {
-      var angle = vectorFrom(needle).subtract(center).multiply(mSpeed).subtract(peas[i]).angle();
+      var point = gridFromOrigin[i];
+      var angle = vectorFrom(needle).subtract(center).multiply(mspeed).subtract(point).angle();
 
       context.save();
       context.translate(p.x, p.y);
       context.rotate(angle);
-      context.moveTo(0, 0);
-      context.lineTo(halfCell.y, 0);
+      context.translate(-halfCell.x, -halfCell.y);
+      context.fillRect(0, 0, cell.x, cell.y);
       context.restore();
     });
 
-    context.closePath();
-    context.stroke();
-
-    tick(draw);
+    repeat(render);
   };
 
-  window.addEventListener('mousemove', function (e) {
+  canvas.addEventListener('touchmove', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    needle.x = e.pageX;
+    needle.y = e.pageY;
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    e.preventDefault();
+
     needle.x = e.x;
     needle.y = e.y;
   });
 
-  window.addEventListener('resize', function () {
-    center.x = window.innerWidth * 0.5;
-    center.y = window.innerHeight * 0.5;
+  var resizeTimer = void 0;
 
-    mSpeed = getMouseSpeed();
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+
+    resizeTimer = setTimeout(function () {
+      innerW = window.innerWidth;
+      innerH = window.innerHeight;
+
+      offsetWidth = canvas.offsetWidth;
+      offsetHeight = canvas.offsetHeight;
+    }, 250);
   });
 
   window.addEventListener('load', function () {
-    tick(draw);
+    repeat(render);
   });
 })();
