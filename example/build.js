@@ -123,7 +123,7 @@
   // Track mouse position
   var needle = createVector();
 
-  var rows = 8;
+  var rows = 10;
   var cols = rows;
   var cell = createVector(width, height).divide(rows);
   var halfCell = vectorFrom(cell).multiply(0.5);
@@ -137,11 +137,14 @@
 
   var pattern = document.createElement('canvas').getContext('2d');
 
-  pattern.font = cell.x + 'px monospace';
-  pattern.textBaseline = 'middle';
-  pattern.fillText('\u2192', 0, cell.x * 0.25);
+  pattern.beginPath();
+  pattern.moveTo(cell.x * 0.25, cell.y * 0.25);
+  pattern.lineTo(cell.x * 0.6, halfCell.y);
+  pattern.lineTo(cell.x * 0.25, cell.y * 0.75);
+  pattern.closePath();
+  pattern.fill();
 
-  context.fillStyle = context.createPattern(pattern.canvas, 'repeat');
+  context.fillStyle = context.createPattern(pattern.canvas, 'no-repeat');
 
   var repeat = function repeat(fn) {
     return window.requestAnimationFrame(fn);
@@ -194,7 +197,7 @@
 
       offsetWidth = canvas.offsetWidth;
       offsetHeight = canvas.offsetHeight;
-    }, 250);
+    }, 300);
   });
 
   window.addEventListener('load', function () {

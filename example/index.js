@@ -19,7 +19,7 @@ const origin = Vector(width, height).multiply(0.5);
 // Track mouse position
 const needle = Vector();
 
-const rows = 8;
+const rows = 10;
 const cols = rows;
 const cell = Vector(width, height).divide(rows);
 const halfCell = vectorFrom(cell).multiply(0.5);
@@ -29,11 +29,14 @@ const gridFromOrigin = grid.map(p => vectorFrom(p).subtract(origin));
 
 const pattern = document.createElement('canvas').getContext('2d');
 
-pattern.font = `${cell.x}px monospace`;
-pattern.textBaseline = 'middle';
-pattern.fillText('\u2192', 0, cell.x * 0.25);
+pattern.beginPath();
+pattern.moveTo(cell.x * 0.25, cell.y * 0.25);
+pattern.lineTo(cell.x * 0.6, halfCell.y);
+pattern.lineTo(cell.x * 0.25, cell.y * 0.75);
+pattern.closePath();
+pattern.fill();
 
-context.fillStyle = context.createPattern(pattern.canvas, 'repeat');
+context.fillStyle = context.createPattern(pattern.canvas, 'no-repeat');
 
 const repeat = fn => window.requestAnimationFrame(fn);
 const render = () => {
@@ -84,7 +87,7 @@ window.addEventListener('resize', () => {
 
     offsetWidth = canvas.offsetWidth;
     offsetHeight = canvas.offsetHeight;
-  }, 250);
+  }, 300);
 });
 
 window.addEventListener('load', () => {
