@@ -94,31 +94,10 @@
     return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
   };
 
-  var createContext = function createContext(width, h) {
-    return Object.assign(document.createElement('canvas'), {
-      width: width,
-      height: h
-    }).getContext('2d');
-  };
-
   var Grid = function Grid(n, k) {
     return Array.from({ length: n * k }).map(function (p, i) {
       return createVector(i % n, Math.floor(i / k));
     });
-  };
-  var Line = function Line(a, w, h) {
-    var output = createContext(w, h);
-    var x = w * 0.5;
-    var y = h * 0.5;
-
-    output.translate(x, y);
-    output.rotate(a);
-
-    output.fillStyle = '#000';
-    output.fillRect(0, -1, y, 2);
-    output.fill();
-
-    return output;
   };
 
   var canvas = document.getElementById('canvas');
@@ -126,8 +105,12 @@
   var width = canvas.width,
       height = canvas.height;
 
-  // Mid window
 
+  var getMouseSpeed = function getMouseSpeed() {
+    return createVector(width / canvas.offsetWidth, height / canvas.offsetHeight);
+  };
+
+  // Mid window
   var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
 
   // Mid canvas
@@ -136,20 +119,21 @@
   // Mouse position
   var needle = center.clone();
 
+  // For scaling mouse position
+  var mSpeed = getMouseSpeed();
+
   // Instead of cloning
   var from = function from(v) {
     return createVector(v.x, v.y);
   };
 
-  var rows = 10;
+  var rows = 20;
   var cols = rows;
   var cell = createVector(width, height).divide(rows);
   var half = cell.clone().multiply(0.5);
+
   var grid = Grid(rows, cols).map(function (p) {
-    return p.multiply(cell);
-  });
-  var peas = grid.map(function (p) {
-    return from(p).add(half).subtract(origin);
+    return p.multiply(cell).add(half);
   });
 
   var tick = function tick(fn) {
@@ -157,14 +141,23 @@
   };
   var draw = function draw() {
     context.clearRect(0, 0, width, height);
+    context.beginPath();
 
-    grid.forEach(function (p, i) {
-      var c = peas[i];
-      var a = needle.clone().subtract(center).subtract(c).angle();
-      var l = Line(a, cell.x, cell.y);
+    grid.forEach(function (p) {
+      var t = from(p).subtract(origin);
+      var m = needle.clone().subtract(center).multiply(mSpeed).subtract(t);
+      var a = m.angle();
 
-      context.drawImage(l.canvas, p.x, p.y);
+      context.save();
+      context.translate(p.x, p.y);
+      context.rotate(a);
+      context.moveTo(0, 0);
+      context.lineTo(half.y, 0);
+      context.restore();
     });
+
+    context.closePath();
+    context.stroke();
 
     tick(draw);
   };
@@ -177,9 +170,15 @@
   window.addEventListener('resize', function () {
     center.x = window.innerWidth * 0.5;
     center.y = window.innerHeight * 0.5;
+
+    mSpeed = getMouseSpeed();
   });
 
   window.addEventListener('load', function () {
+    tick(draw);
+  });
+
+  document.addEventListener('click', function () {
     tick(draw);
   });
 })();

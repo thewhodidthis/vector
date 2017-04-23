@@ -8,6 +8,7 @@ body {
 }
 
 body,
+p,
 figure {
   margin: 0;
 }
@@ -39,6 +40,20 @@ figure {
   height: 100%;
   overflow: hidden;
   position: relative;
+
+  background: #eee;
+}
+
+figcaption {
+  bottom: 0;
+  font-size: 90%;
+  margin: 0 0 0.5rem;
+  position: absolute;
+  text-align: center;
+}
+
+figcaption p {
+  padding-left: 0.75rem;
 }
 
 canvas {
@@ -58,3 +73,4 @@ canvas {
     max-height: 500px;
   }
 }
+
