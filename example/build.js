@@ -177,19 +177,16 @@
     repeat(render);
   };
 
-  document.addEventListener('touchmove', function (e) {
+  var update = function update(e) {
     e.preventDefault();
 
     needle.x = e.pageX;
     needle.y = e.pageY;
-  });
+  };
 
-  document.addEventListener('mousemove', function (e) {
-    e.preventDefault();
-
-    needle.x = e.x;
-    needle.y = e.y;
-  });
+  document.addEventListener('touchstart', update);
+  document.addEventListener('touchmove', update);
+  document.addEventListener('mousemove', update);
 
   window.addEventListener('resize', function () {
     viewW = Math.max(window.innerWidth, html.clientWidth);
