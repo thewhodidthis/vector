@@ -177,9 +177,8 @@
     repeat(render);
   };
 
-  canvas.addEventListener('touchmove', function (e) {
+  document.addEventListener('touchmove', function (e) {
     e.preventDefault();
-    e.stopPropagation();
 
     needle.x = e.pageX;
     needle.y = e.pageY;

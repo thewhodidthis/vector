@@ -67,9 +67,8 @@ const render = () => {
   repeat(render);
 };
 
-canvas.addEventListener('touchmove', (e) => {
+document.addEventListener('touchmove', (e) => {
   e.preventDefault();
-  e.stopPropagation();
 
   needle.x = e.pageX;
   needle.y = e.pageY;
