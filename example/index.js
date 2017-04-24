@@ -1,34 +1,40 @@
 import { createVector as Vector } from '../index.es';
 
-// Instead of cloning
+// Instead of cloning all the time
 const vectorFrom = v => Vector(v.x, v.y);
 
-// Get grid points array
-const createGrid = (n, k) => Array.from({ length: n * k }).map((p, i) => Vector(i % n, Math.floor(i / k)));
+// Prepare grid points array
+const createGrid = n => Array.from({ length: n * n }).map((p, i) => Vector(i % n, Math.floor(i / n)));
 
+const html = document.documentElement;
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
+// Adjustable
 let { width, height, offsetWidth, offsetHeight } = canvas;
-let innerW = window.innerWidth;
-let innerH = window.innerHeight
+let viewW = window.innerWidth;
+let viewH = window.innerHeight
 
 // Mid canvas
 const origin = Vector(width, height).multiply(0.5);
 
-// Track mouse position
+// Store mouse position
 const needle = Vector();
 
-const rows = 10;
-const cols = rows;
-const cell = Vector(width, height).divide(rows);
+const gridSize = 12;
+const cell = Vector(width, height).divide(gridSize);
 const halfCell = vectorFrom(cell).multiply(0.5);
 
-const grid = createGrid(rows, cols).map(p => p.multiply(cell).add(halfCell));
+const grid = createGrid(gridSize).map(p => p.multiply(cell).add(halfCell));
 const gridFromOrigin = grid.map(p => vectorFrom(p).subtract(origin));
 
 const pattern = document.createElement('canvas').getContext('2d');
 
+// Save on space
+pattern.canvas.width = cell.x;
+pattern.canvas.height = cell.y;
+
+// Prerender mother shape
 pattern.beginPath();
 pattern.moveTo(cell.x * 0.25, cell.y * 0.25);
 pattern.lineTo(cell.x * 0.6, halfCell.y);
@@ -40,15 +46,15 @@ context.fillStyle = context.createPattern(pattern.canvas, 'no-repeat');
 
 const repeat = fn => window.requestAnimationFrame(fn);
 const render = () => {
-  const bounds = Vector(offsetWidth, offsetHeight);
-  const mspeed = Vector(width, height).divide(bounds);
-  const center = Vector(innerW, innerH).multiply(0.5);
+  const viewCenter = Vector(viewW, viewH).multiply(0.5);
+  const canvasRect = Vector(offsetWidth, offsetHeight);
+  const mouseScale = Vector(width, height).divide(canvasRect);
 
   context.clearRect(0, 0, width, height);
 
   grid.forEach((p, i) => {
     const point = gridFromOrigin[i];
-    const angle = vectorFrom(needle).subtract(center).multiply(mspeed).subtract(point).angle();
+    const angle = vectorFrom(needle).subtract(viewCenter).multiply(mouseScale).subtract(point).angle();
 
     context.save();
     context.translate(p.x, p.y);
@@ -76,18 +82,12 @@ document.addEventListener('mousemove', (e) => {
   needle.y = e.y;
 });
 
-let resizeTimer;
-
 window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
+  viewW = Math.max(window.innerWidth, html.clientWidth);
+  viewH = Math.max(window.innerHeight, html.clientHeight);
 
-  resizeTimer = setTimeout(() => {
-    innerW = window.innerWidth;
-    innerH = window.innerHeight;
-
-    offsetWidth = canvas.offsetWidth;
-    offsetHeight = canvas.offsetHeight;
-  }, 300);
+  offsetWidth = canvas.offsetWidth;
+  offsetHeight = canvas.offsetHeight;
 });
 
 window.addEventListener('load', () => {

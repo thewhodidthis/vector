@@ -94,41 +94,42 @@
     return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
   };
 
-  // Instead of cloning
+  // Instead of cloning all the time
   var vectorFrom = function vectorFrom(v) {
     return createVector(v.x, v.y);
   };
 
-  // Get grid points array
-  var createGrid = function createGrid(n, k) {
-    return Array.from({ length: n * k }).map(function (p, i) {
-      return createVector(i % n, Math.floor(i / k));
+  // Prepare grid points array
+  var createGrid = function createGrid(n) {
+    return Array.from({ length: n * n }).map(function (p, i) {
+      return createVector(i % n, Math.floor(i / n));
     });
   };
 
+  var html = document.documentElement;
   var canvas = document.getElementById('canvas');
   var context = canvas.getContext('2d');
 
+  // Adjustable
   var width = canvas.width,
       height = canvas.height,
       offsetWidth = canvas.offsetWidth,
       offsetHeight = canvas.offsetHeight;
 
-  var innerW = window.innerWidth;
-  var innerH = window.innerHeight;
+  var viewW = window.innerWidth;
+  var viewH = window.innerHeight;
 
   // Mid canvas
   var origin = createVector(width, height).multiply(0.5);
 
-  // Track mouse position
+  // Store mouse position
   var needle = createVector();
 
-  var rows = 10;
-  var cols = rows;
-  var cell = createVector(width, height).divide(rows);
+  var gridSize = 12;
+  var cell = createVector(width, height).divide(gridSize);
   var halfCell = vectorFrom(cell).multiply(0.5);
 
-  var grid = createGrid(rows, cols).map(function (p) {
+  var grid = createGrid(gridSize).map(function (p) {
     return p.multiply(cell).add(halfCell);
   });
   var gridFromOrigin = grid.map(function (p) {
@@ -137,6 +138,11 @@
 
   var pattern = document.createElement('canvas').getContext('2d');
 
+  // Save on space
+  pattern.canvas.width = cell.x;
+  pattern.canvas.height = cell.y;
+
+  // Prerender mother shape
   pattern.beginPath();
   pattern.moveTo(cell.x * 0.25, cell.y * 0.25);
   pattern.lineTo(cell.x * 0.6, halfCell.y);
@@ -150,15 +156,15 @@
     return window.requestAnimationFrame(fn);
   };
   var render = function render() {
-    var bounds = createVector(offsetWidth, offsetHeight);
-    var mspeed = createVector(width, height).divide(bounds);
-    var center = createVector(innerW, innerH).multiply(0.5);
+    var viewCenter = createVector(viewW, viewH).multiply(0.5);
+    var canvasRect = createVector(offsetWidth, offsetHeight);
+    var mouseScale = createVector(width, height).divide(canvasRect);
 
     context.clearRect(0, 0, width, height);
 
     grid.forEach(function (p, i) {
       var point = gridFromOrigin[i];
-      var angle = vectorFrom(needle).subtract(center).multiply(mspeed).subtract(point).angle();
+      var angle = vectorFrom(needle).subtract(viewCenter).multiply(mouseScale).subtract(point).angle();
 
       context.save();
       context.translate(p.x, p.y);
@@ -186,18 +192,12 @@
     needle.y = e.y;
   });
 
-  var resizeTimer = void 0;
-
   window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
+    viewW = Math.max(window.innerWidth, html.clientWidth);
+    viewH = Math.max(window.innerHeight, html.clientHeight);
 
-    resizeTimer = setTimeout(function () {
-      innerW = window.innerWidth;
-      innerH = window.innerHeight;
-
-      offsetWidth = canvas.offsetWidth;
-      offsetHeight = canvas.offsetHeight;
-    }, 300);
+    offsetWidth = canvas.offsetWidth;
+    offsetHeight = canvas.offsetHeight;
   });
 
   window.addEventListener('load', function () {
