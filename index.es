@@ -56,7 +56,15 @@ export const Vector2d = {
     return this;
   },
 
-  // Copy
+  // Transfer
+  copy(v) {
+    this.x = v.x;
+    this.y = v.y;
+
+    return this;
+  },
+
+  // Duplicate
   clone() {
     return Object.assign({}, this);
   },

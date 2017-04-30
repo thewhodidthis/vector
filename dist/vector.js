@@ -63,7 +63,16 @@
     },
 
 
-    // Copy
+    // Transfer
+    copy: function copy(v) {
+      this.x = v.x;
+      this.y = v.y;
+
+      return this;
+    },
+
+
+    // Duplicate
     clone: function clone() {
       return Object.assign({}, this);
     },
