@@ -5,94 +5,133 @@ const vectorFrom = v => Vector(v.x, v.y);
 
 // Prepare grid points array
 /* eslint max-len: "warn" */
-const createGrid = n => Array.from({ length: n * n }).map((p, i) => Vector(i % n, Math.floor(i / n)));
+const createGrid = v => Array.from({ length: v.x * v.y }).map((p, i) => Vector(i % v.x, Math.floor(i / v.x)));
 
-const html = document.documentElement;
-const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
+const canvas = document.querySelector('canvas');
+const master = canvas.getContext('2d');
 
-// Adjustable
-const { width, height } = canvas;
-let { offsetWidth, offsetHeight } = canvas;
-let viewW = window.innerWidth;
-let viewH = window.innerHeight;
+// Window size
+const viewport = Vector(window.innerWidth, window.innerHeight);
 
-// Mid canvas
-const origin = Vector(width, height).multiply(0.5);
+// Canvas size
+const view = Vector(canvas.width, canvas.height);
 
-// Store mouse position
+// Canvas bounding rect
+const offset = Vector(canvas.offsetWidth, canvas.offsetHeight);
+
+// Canvas mid
+const origin = view.clone().multiply(0.5);
+
+// Mouse position
 const needle = Vector();
 
-const gridSize = 12;
-const cell = Vector(width, height).divide(gridSize);
-const halfCell = vectorFrom(cell).multiply(0.5);
+// Grid stuff
+const cellMag = 25;
+const cellMid = cellMag * 0.5;
+const cellN = view.clone().divide(cellMag);
 
-const grid = createGrid(gridSize).map(p => p.multiply(cell).add(halfCell));
+const grid = createGrid(cellN).map(p => p.multiply(cellMag).add(cellMid));
 const gridFromOrigin = grid.map(p => vectorFrom(p).subtract(origin));
 
-const pattern = document.createElement('canvas').getContext('2d');
+// Draw gridlines
+const guides = canvas.cloneNode().getContext('2d');
 
-// Save on space
-pattern.canvas.width = cell.x;
-pattern.canvas.height = cell.y;
+for (let i = 0; i < view.x; i += cellMag) {
+  const x = i - 0.5;
+
+  guides.moveTo(x, 0);
+  guides.lineTo(x, view.y);
+}
+
+for (let i = 0; i < view.y; i += cellMag) {
+  const y = i - 0.5;
+
+  guides.moveTo(0, y);
+  guides.lineTo(view.x, y);
+}
+
+guides.fillStyle = '#fff';
+guides.fillRect(0, 0, view.x, view.y);
+guides.strokeStyle = '#ddd';
+guides.stroke();
 
 // Prerender mother shape
-pattern.beginPath();
-pattern.moveTo(cell.x * 0.25, cell.y * 0.25);
-pattern.lineTo(cell.x * 0.6, halfCell.y);
-pattern.lineTo(cell.x * 0.25, cell.y * 0.75);
-pattern.closePath();
-pattern.fill();
+const cursor = document.createElement('canvas').getContext('2d');
 
-context.fillStyle = context.createPattern(pattern.canvas, 'no-repeat');
+// Save on space
+Object.assign(cursor.canvas, { width: view.x, height: view.y });
 
-const repeat = fn => window.requestAnimationFrame(fn);
-const render = () => {
-  const viewCenter = Vector(viewW, viewH).multiply(0.5);
-  const canvasRect = Vector(offsetWidth, offsetHeight);
-  const mouseScale = Vector(width, height).divide(canvasRect);
+// Prerender mother shape
+cursor.beginPath();
+cursor.moveTo(cellMag * 0.625, cellMag * 0.375);
+cursor.lineTo(cellMag * 0.75, cellMid);
+cursor.lineTo(cellMag * 0.625, cellMag * 0.625);
+cursor.moveTo(cellMag * 0.25, cellMid);
+cursor.lineTo(cellMag * 0.75, cellMid);
+cursor.lineCap = 'square';
+cursor.lineWidth = 2;
+cursor.stroke();
 
-  context.clearRect(0, 0, width, height);
+master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat');
+
+const stop = id => window.cancelAnimationFrame(id);
+const tick = fn => window.requestAnimationFrame(fn);
+const draw = () => {
+  const center = viewport.clone().multiply(0.5);
+  const correction = view.clone().divide(offset);
+
+  master.drawImage(guides.canvas, 0, 0);
 
   grid.forEach((p, i) => {
     const point = gridFromOrigin[i];
     const angle = vectorFrom(needle)
-      .subtract(viewCenter)
-      .multiply(mouseScale)
+      .subtract(center)
+      .multiply(correction)
       .subtract(point)
       .angle();
 
-    context.save();
-    context.translate(p.x, p.y);
-    context.rotate(angle);
-    context.translate(-halfCell.x, -halfCell.y);
-    context.fillRect(0, 0, cell.x, cell.y);
-    context.restore();
+    master.save();
+    master.translate(p.x, p.y);
+    master.rotate(angle);
+    master.translate(-cellMid, -cellMid);
+    master.fillRect(0, 0, cellMag, cellMag);
+    master.restore();
   });
-
-  repeat(render);
 };
 
-const update = (e) => {
+let frameId = -1;
+
+const move = (e) => {
   e.preventDefault();
 
-  needle.x = e.pageX;
-  needle.y = e.pageY;
+  const pageX = e.pageX || (e.touches && e.touches[0].pageX);
+  const pageY = e.pageY || (e.touches && e.touches[0].pageY);
+
+  if (needle.x !== pageX || needle.y !== pageY) {
+    frameId = tick(draw);
+  } else {
+    frameId = stop(frameId);
+  }
+
+  needle.x = pageX;
+  needle.y = pageY;
 };
 
-document.addEventListener('touchstart', update);
-document.addEventListener('touchmove', update);
-document.addEventListener('mousemove', update);
+['mousemove', 'touchmove', 'touchstart'].forEach((e) => {
+  document.addEventListener(e, move);
+});
+
+const html = document.documentElement;
 
 window.addEventListener('resize', () => {
-  viewW = Math.max(window.innerWidth, html.clientWidth);
-  viewH = Math.max(window.innerHeight, html.clientHeight);
+  viewport.x = Math.max(window.innerWidth, html.clientWidth);
+  viewport.y = Math.max(window.innerHeight, html.clientHeight);
 
-  offsetWidth = canvas.offsetWidth;
-  offsetHeight = canvas.offsetHeight;
+  offset.x = canvas.offsetWidth;
+  offset.y = canvas.offsetHeight;
 });
 
 window.addEventListener('load', () => {
-  repeat(render);
+  frameId = tick(draw);
 });
 

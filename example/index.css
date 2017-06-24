@@ -1,13 +1,6 @@
-noscript {
-  top: 0;
-  margin: 6px;
-  left: 0.5rem;
-  position: absolute;
-  font: italic 12px/28px arial, sans-serif;
-}
-
 html {
   min-height: 100%;
+  touch-action: none;
 }
 
 html,
@@ -15,36 +8,26 @@ body {
   height: 100%;
 }
 
-body,
+body {
+  margin: 0;
+  padding: 0.5rem;
+  overflow: hidden;
+  background: #eee;
+  box-sizing: border-box;
+  font: 16px/1.25 arial, sans-serif;
+}
+
+small {
+  font-size: 0.75rem;
+}
+
+p {
+  font-size: 0.875rem;
+}
+
 p,
 figure {
   margin: 0;
-}
-
-body {
-  background: #eee;
-}
-
-body::before,
-body::after {
-  z-index: 1;
-  content: "";
-  background: #f00;
-  position: absolute;
-}
-
-body::before {
-  top: 0;
-  left: 50%;
-  width: 1px;
-  height: 100%;
-}
-
-body::after {
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1px;
 }
 
 figure {
@@ -56,14 +39,9 @@ figure {
 
 figcaption {
   bottom: 0;
-  font-size: 90%;
-  margin: 0 0 0.5rem;
+  background: #eee;
   position: absolute;
-  text-align: center;
-}
-
-figcaption p {
-  padding-left: 0.75rem;
+  padding: 0.5rem 0.75rem;
 }
 
 canvas {
@@ -71,27 +49,17 @@ canvas {
   left: 50%;
   min-width: 100%;
   min-height: 100%;
-  background: #fff;
   position: absolute;
-  border: 1px solid #ccc;
-  padding: 0.5rem 0.125rem;
-  transform: translate3d(-50%, -50%, 0);
+  transform: translate(-50%, -50%);
 }
 
 @media screen and (min-width: 800px) and (min-height: 500px) {
-  body::before,
-  body::after {
-    z-index: 0;
-    background: #fff;
-  }
-
   canvas {
-    z-index: 1;
     min-width: 500px;
-    min-height: 300px;
     max-width: 500px;
+
+    min-height: 300px;
     max-height: 500px;
-    background: rgba(255, 255, 255, 0.8);
   }
 }
 
