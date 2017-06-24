@@ -1,107 +1,106 @@
 (function (exports) {
-  'use strict';
+'use strict';
 
-  // Expects vector-like `Object` or `Number`
-  var pointFrom = function pointFrom(n) {
-    return Object.assign({ x: n, y: n }, n);
-  };
+// Expects vector-like `Object` or `Number`
+var pointFrom = function pointFrom(n) {
+  return Object.assign({ x: n, y: n }, n);
+};
 
-  // For composing with
-  var Vector2d = {
-    x: 0,
-    y: 0,
+// For composing with
+var Vector2d = {
+  x: 0,
+  y: 0,
 
-    // Scalars
-    mag: function mag() {
-      return Math.sqrt(this.dot(this));
-    },
-    dist: function dist(a) {
-      // Angle between
-      return Math.acos(this.dot(a) / (this.mag() * a.mag()));
-    },
-    angle: function angle() {
-      // To angle
-      return Math.atan2(this.y, this.x);
-    },
-    dot: function dot(v) {
-      return this.x * v.x + this.y * v.y;
-    },
-
-
-    // Math
-    add: function add(v) {
-      var p = pointFrom(v);
-
-      this.x += p.x;
-      this.y += p.y;
-
-      return this;
-    },
-    subtract: function subtract(v) {
-      var p = pointFrom(v);
-
-      this.x -= p.x;
-      this.y -= p.y;
-
-      return this;
-    },
-    multiply: function multiply(v) {
-      var p = pointFrom(v);
-
-      this.x *= p.x;
-      this.y *= p.y;
-
-      return this;
-    },
-    divide: function divide(v) {
-      var p = pointFrom(v);
-
-      this.x /= p.x;
-      this.y /= p.y;
-
-      return this;
-    },
+  // Scalars
+  mag: function mag() {
+    return Math.sqrt(this.dot(this));
+  },
+  dist: function dist(a) {
+    // Angle between
+    return Math.acos(this.dot(a) / (this.mag() * a.mag()));
+  },
+  angle: function angle() {
+    // To angle
+    return Math.atan2(this.y, this.x);
+  },
+  dot: function dot(v) {
+    return this.x * v.x + this.y * v.y;
+  },
 
 
-    // Transfer
-    copy: function copy(v) {
-      this.x = v.x;
-      this.y = v.y;
+  // Math
+  add: function add(v) {
+    var p = pointFrom(v);
 
-      return this;
-    },
+    this.x += p.x;
+    this.y += p.y;
+
+    return this;
+  },
+  subtract: function subtract(v) {
+    var p = pointFrom(v);
+
+    this.x -= p.x;
+    this.y -= p.y;
+
+    return this;
+  },
+  multiply: function multiply(v) {
+    var p = pointFrom(v);
+
+    this.x *= p.x;
+    this.y *= p.y;
+
+    return this;
+  },
+  divide: function divide(v) {
+    var p = pointFrom(v);
+
+    this.x /= p.x;
+    this.y /= p.y;
+
+    return this;
+  },
 
 
-    // Duplicate
-    clone: function clone() {
-      return Object.assign({}, this);
-    },
+  // Transfer
+  copy: function copy(v) {
+    this.x = v.x;
+    this.y = v.y;
+
+    return this;
+  },
 
 
-    // Compare
-    equals: function equals(v) {
-      return this.x === v.x && this.y === v.y;
-    },
+  // Duplicate
+  clone: function clone() {
+    return Object.assign({}, this);
+  },
 
 
-    // Negate
-    invert: function invert() {
-      return this.multiply(-1);
-    },
+  // Compare
+  equals: function equals(v) {
+    return this.x === v.x && this.y === v.y;
+  },
 
 
-    // Scale
-    normalise: function normalise() {
-      return this.divide(this.mag());
-    }
-  };
+  // Negate
+  invert: function invert() {
+    return this.multiply(-1);
+  },
 
-  var createVector = function createVector(x, y) {
-    return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
-  };
 
-  exports.Vector2d = Vector2d;
-  exports.createVector = createVector;
+  // Scale
+  normalise: function normalise() {
+    return this.divide(this.mag());
+  }
+};
 
-}((this.Vector = this.Vector || {})));
-//# sourceMappingURL=vector.js.map
+var createVector = function createVector(x, y) {
+  return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
+};
+
+exports.Vector2d = Vector2d;
+exports.createVector = createVector;
+
+}((this.vector = this.vector || {})));
