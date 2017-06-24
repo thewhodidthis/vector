@@ -8,9 +8,7 @@ export default {
   targets: [
     {
       format: 'iife',
-      indent: true,
-      sourceMap: true,
-      moduleName: 'Vector',
+      moduleName: 'vector',
       dest: 'dist/vector.js'
     },
     {
