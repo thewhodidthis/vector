@@ -17,8 +17,12 @@ body {
   font: 16px/1.25 arial, sans-serif;
 }
 
-small {
+noscript {
+  top: 0.5rem;
+  left: 0.5rem;
+  position: absolute;
   font-size: 0.75rem;
+  font-style: italic;
 }
 
 p {
