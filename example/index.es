@@ -52,7 +52,7 @@ for (let i = 0; i < view.y; i += cellMag) {
 
 guides.fillStyle = '#fff';
 guides.fillRect(0, 0, view.x, view.y);
-guides.strokeStyle = '#ddd';
+guides.strokeStyle = window.getComputedStyle(canvas).borderColor;
 guides.stroke();
 
 // Prerender mother shape
@@ -69,7 +69,7 @@ cursor.lineTo(cellMag * 0.625, cellMag * 0.625);
 cursor.moveTo(cellMag * 0.25, cellMid);
 cursor.lineTo(cellMag * 0.75, cellMid);
 cursor.lineCap = 'square';
-cursor.lineWidth = 2;
+cursor.lineWidth = 1.5;
 cursor.stroke();
 
 master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat');
