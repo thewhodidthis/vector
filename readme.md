@@ -12,7 +12,7 @@ import { Vector2d } from '@thewhodidthis/vector';
 
 // Innards
 Object.keys(Vector2d).forEach((k) => {
-  console.log(k);
+    console.log(k);
 });
 ```
 
@@ -22,12 +22,18 @@ import { Vector2d, createVector } from '@thewhodidthis/vector';
 
 // Extend
 const myVector = Object.assign({}, Vector2d, {
-  min() {
-    return Math.min(this.x, this.y);
-  },
-  max() {
-    return Math.max(this.x, this.y);
-  },
+    get w() {
+        return this.x;
+    },
+    get h() {
+        return this.y;
+    },
+    min() {
+        return Math.min(this.x, this.y);
+    },
+    max() {
+        return Math.max(this.x, this.y);
+    },
 });
 
 // Expand on
