@@ -3,9 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 // Expects vector-like `Object` or `Number`
-var pointFrom = function pointFrom(n) {
-  return Object.assign({ x: n, y: n }, n);
-};
+var pointFrom = function (n) { return Object.assign({ x: n, y: n }, n); };
 
 // For composing with
 var Vector2d = {
@@ -14,20 +12,19 @@ var Vector2d = {
 
   // Scalars
   mag: function mag() {
-    return Math.sqrt(this.dot(this));
+    return Math.sqrt(this.dot(this))
   },
   dist: function dist(a) {
     // Angle between
-    return Math.acos(this.dot(a) / (this.mag() * a.mag()));
+    return Math.acos(this.dot(a) / (this.mag() * a.mag()))
   },
   angle: function angle() {
     // To angle
-    return Math.atan2(this.y, this.x);
+    return Math.atan2(this.y, this.x)
   },
   dot: function dot(v) {
-    return this.x * v.x + this.y * v.y;
+    return (this.x * v.x) + (this.y * v.y)
   },
-
 
   // Math
   add: function add(v) {
@@ -36,7 +33,7 @@ var Vector2d = {
     this.x += p.x;
     this.y += p.y;
 
-    return this;
+    return this
   },
   subtract: function subtract(v) {
     var p = pointFrom(v);
@@ -44,7 +41,7 @@ var Vector2d = {
     this.x -= p.x;
     this.y -= p.y;
 
-    return this;
+    return this
   },
   multiply: function multiply(v) {
     var p = pointFrom(v);
@@ -52,7 +49,7 @@ var Vector2d = {
     this.x *= p.x;
     this.y *= p.y;
 
-    return this;
+    return this
   },
   divide: function divide(v) {
     var p = pointFrom(v);
@@ -60,46 +57,40 @@ var Vector2d = {
     this.x /= p.x;
     this.y /= p.y;
 
-    return this;
+    return this
   },
-
 
   // Transfer
   copy: function copy(v) {
     this.x = v.x;
     this.y = v.y;
 
-    return this;
+    return this
   },
-
 
   // Duplicate
   clone: function clone() {
-    return Object.assign({}, this);
+    return Object.assign({}, this)
   },
-
 
   // Compare
   equals: function equals(v) {
-    return this.x === v.x && this.y === v.y;
+    return this.x === v.x && this.y === v.y
   },
-
 
   // Negate
   invert: function invert() {
-    return this.multiply(-1);
+    return this.multiply(-1)
   },
-
 
   // Scale
   normalise: function normalise() {
-    return this.divide(this.mag());
+    return this.divide(this.mag())
   }
 };
 
-var createVector = function createVector(x, y) {
-  return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
-};
+var createVector = function (x, y) { return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 }); };
 
 exports.Vector2d = Vector2d;
 exports.createVector = createVector;
+
