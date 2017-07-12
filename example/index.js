@@ -2,9 +2,7 @@
 'use strict';
 
 // Expects vector-like `Object` or `Number`
-var pointFrom = function pointFrom(n) {
-  return Object.assign({ x: n, y: n }, n);
-};
+var pointFrom = function (n) { return Object.assign({ x: n, y: n }, n); };
 
 // For composing with
 var Vector2d = {
@@ -13,20 +11,19 @@ var Vector2d = {
 
   // Scalars
   mag: function mag() {
-    return Math.sqrt(this.dot(this));
+    return Math.sqrt(this.dot(this))
   },
   dist: function dist(a) {
     // Angle between
-    return Math.acos(this.dot(a) / (this.mag() * a.mag()));
+    return Math.acos(this.dot(a) / (this.mag() * a.mag()))
   },
   angle: function angle() {
     // To angle
-    return Math.atan2(this.y, this.x);
+    return Math.atan2(this.y, this.x)
   },
   dot: function dot(v) {
-    return this.x * v.x + this.y * v.y;
+    return (this.x * v.x) + (this.y * v.y)
   },
-
 
   // Math
   add: function add(v) {
@@ -35,7 +32,7 @@ var Vector2d = {
     this.x += p.x;
     this.y += p.y;
 
-    return this;
+    return this
   },
   subtract: function subtract(v) {
     var p = pointFrom(v);
@@ -43,7 +40,7 @@ var Vector2d = {
     this.x -= p.x;
     this.y -= p.y;
 
-    return this;
+    return this
   },
   multiply: function multiply(v) {
     var p = pointFrom(v);
@@ -51,7 +48,7 @@ var Vector2d = {
     this.x *= p.x;
     this.y *= p.y;
 
-    return this;
+    return this
   },
   divide: function divide(v) {
     var p = pointFrom(v);
@@ -59,59 +56,46 @@ var Vector2d = {
     this.x /= p.x;
     this.y /= p.y;
 
-    return this;
+    return this
   },
-
 
   // Transfer
   copy: function copy(v) {
     this.x = v.x;
     this.y = v.y;
 
-    return this;
+    return this
   },
-
 
   // Duplicate
   clone: function clone() {
-    return Object.assign({}, this);
+    return Object.assign({}, this)
   },
-
 
   // Compare
   equals: function equals(v) {
-    return this.x === v.x && this.y === v.y;
+    return this.x === v.x && this.y === v.y
   },
-
 
   // Negate
   invert: function invert() {
-    return this.multiply(-1);
+    return this.multiply(-1)
   },
-
 
   // Scale
   normalise: function normalise() {
-    return this.divide(this.mag());
+    return this.divide(this.mag())
   }
 };
 
-var createVector = function createVector(x, y) {
-  return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 });
-};
+var createVector = function (x, y) { return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 }); };
 
 // Instead of cloning all the time
-var vectorFrom = function vectorFrom(v) {
-  return createVector(v.x, v.y);
-};
+var vectorFrom = function (v) { return createVector(v.x, v.y); };
 
 // Prepare grid points array
 /* eslint max-len: "warn" */
-var createGrid = function createGrid(v) {
-  return Array.from({ length: v.x * v.y }).map(function (p, i) {
-    return createVector(i % v.x, Math.floor(i / v.x));
-  });
-};
+var createGrid = function (v) { return Array.from({ length: v.x * v.y }).map(function (p, i) { return createVector(i % v.x, Math.floor(i / v.x)); }); };
 
 var canvas = document.querySelector('canvas');
 var master = canvas.getContext('2d');
@@ -136,12 +120,8 @@ var cellMag = 25;
 var cellMid = cellMag * 0.5;
 var cellN = view.clone().divide(cellMag);
 
-var grid = createGrid(cellN).map(function (p) {
-  return p.multiply(cellMag).add(cellMid);
-});
-var gridFromOrigin = grid.map(function (p) {
-  return vectorFrom(p).subtract(origin);
-});
+var grid = createGrid(cellN).map(function (p) { return p.multiply(cellMag).add(cellMid); });
+var gridFromOrigin = grid.map(function (p) { return vectorFrom(p).subtract(origin); });
 
 // Draw gridlines
 var guides = canvas.cloneNode().getContext('2d');
@@ -153,8 +133,8 @@ for (var i = 0; i < view.x; i += cellMag) {
   guides.lineTo(x, view.y);
 }
 
-for (var _i = 0; _i < view.y; _i += cellMag) {
-  var y = _i - 0.5;
+for (var i$1 = 0; i$1 < view.y; i$1 += cellMag) {
+  var y = i$1 - 0.5;
 
   guides.moveTo(0, y);
   guides.lineTo(view.x, y);
@@ -184,13 +164,9 @@ cursor.stroke();
 
 master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat');
 
-var stop = function stop(id) {
-  return window.cancelAnimationFrame(id);
-};
-var tick = function tick(fn) {
-  return window.requestAnimationFrame(fn);
-};
-var draw = function draw() {
+var stop = function (id) { return window.cancelAnimationFrame(id); };
+var tick = function (fn) { return window.requestAnimationFrame(fn); };
+var draw = function () {
   var center = viewport.clone().multiply(0.5);
   var correction = view.clone().divide(offset);
 
@@ -198,7 +174,11 @@ var draw = function draw() {
 
   grid.forEach(function (p, i) {
     var point = gridFromOrigin[i];
-    var angle = vectorFrom(needle).subtract(center).multiply(correction).subtract(point).angle();
+    var angle = vectorFrom(needle)
+      .subtract(center)
+      .multiply(correction)
+      .subtract(point)
+      .angle();
 
     master.save();
     master.translate(p.x, p.y);
@@ -211,11 +191,11 @@ var draw = function draw() {
 
 var frameId = -1;
 
-var move = function move(e) {
+var move = function (e) {
   e.preventDefault();
 
-  var pageX = e.pageX || e.touches && e.touches[0].pageX;
-  var pageY = e.pageY || e.touches && e.touches[0].pageY;
+  var pageX = e.pageX || (e.touches && e.touches[0].pageX);
+  var pageY = e.pageY || (e.touches && e.touches[0].pageY);
 
   if (needle.x !== pageX || needle.y !== pageY) {
     frameId = tick(draw);
@@ -246,3 +226,4 @@ window.addEventListener('load', function () {
 });
 
 }());
+
