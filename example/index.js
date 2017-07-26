@@ -142,7 +142,7 @@ for (var i$1 = 0; i$1 < view.y; i$1 += cellMag) {
 
 guides.fillStyle = '#fff';
 guides.fillRect(0, 0, view.x, view.y);
-guides.strokeStyle = window.getComputedStyle(canvas).borderColor;
+guides.strokeStyle = '#ddd';
 guides.stroke();
 
 // Prerender mother shape

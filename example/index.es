@@ -52,7 +52,7 @@ for (let i = 0; i < view.y; i += cellMag) {
 
 guides.fillStyle = '#fff'
 guides.fillRect(0, 0, view.x, view.y)
-guides.strokeStyle = window.getComputedStyle(canvas).borderColor
+guides.strokeStyle = '#ddd'
 guides.stroke()
 
 // Prerender mother shape
