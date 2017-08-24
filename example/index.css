@@ -3,11 +3,11 @@ html {
 }
 
 body {
-  margin: 0;
-  padding: 0.5rem;
-  overflow: hidden;
   box-sizing: border-box;
   font: 16px/1.25 arial, sans-serif;
+  margin: 0;
+  overflow: hidden;
+  padding: 0.5rem;
 }
 
 small {
@@ -15,16 +15,16 @@ small {
 }
 
 p {
-  margin: 0;
   font-size: 0.875rem;
+  margin: 0;
 }
 
 figure {
-  top: 50%;
   left: 50%;
+  margin: -150px 0 0 -250px;
   position: absolute;
   text-align: center;
-  margin: -150px 0 0 -250px;
+  top: 50%;
 }
 
 figcaption {
