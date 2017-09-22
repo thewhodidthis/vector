@@ -94,7 +94,6 @@ var createVector = function (x, y) { return Object.assign({}, Vector2d, { x: x |
 var vectorFrom = function (v) { return createVector(v.x, v.y); };
 
 // Prepare grid points array
-/* eslint max-len: "warn" */
 var createGrid = function (v) { return Array.from({ length: v.x * v.y }).map(function (p, i) { return createVector(i % v.x, Math.floor(i / v.x)); }); };
 
 var canvas = document.querySelector('canvas');

@@ -1,10 +1,9 @@
-import { createVector as Vector } from '../index.es'
+import { createVector as Vector } from '../index.mjs'
 
 // Instead of cloning all the time
 const vectorFrom = v => Vector(v.x, v.y)
 
 // Prepare grid points array
-/* eslint max-len: "warn" */
 const createGrid = v => Array.from({ length: v.x * v.y }).map((p, i) => Vector(i % v.x, Math.floor(i / v.x)))
 
 const canvas = document.querySelector('canvas')
