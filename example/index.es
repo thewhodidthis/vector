@@ -9,25 +9,25 @@ const createGrid = v => Array.from({ length: v.x * v.y }).map((p, i) => Vector(i
 const canvas = document.querySelector('canvas')
 const master = canvas.getContext('2d')
 
-// Window size
-const viewport = Vector(window.innerWidth, window.innerHeight)
+// Mouse position
+const needle = Vector()
 
-// Canvas size
-const view = Vector(canvas.width, canvas.height)
+// Window size
+const father = Vector(window.innerWidth, window.innerHeight)
+
+// Canvas dimensions
+const figure = Vector(canvas.width, canvas.height)
+
+// Canvas mid
+const origin = figure.clone().multiply(0.5)
 
 // Canvas bounding rect
 const offset = Vector(canvas.offsetWidth, canvas.offsetHeight)
 
-// Canvas mid
-const origin = view.clone().multiply(0.5)
-
-// Mouse position
-const needle = Vector()
-
 // Grid stuff
 const cellMag = 25
 const cellMid = cellMag * 0.5
-const cellN = view.clone().divide(cellMag)
+const cellN = figure.clone().divide(cellMag)
 
 const grid = createGrid(cellN).map(p => p.multiply(cellMag).add(cellMid))
 const gridFromOrigin = grid.map(p => vectorFrom(p).subtract(origin))
@@ -35,22 +35,22 @@ const gridFromOrigin = grid.map(p => vectorFrom(p).subtract(origin))
 // Draw gridlines
 const guides = canvas.cloneNode().getContext('2d')
 
-for (let i = 0; i < view.x; i += cellMag) {
+for (let i = 0; i < figure.x; i += cellMag) {
   const x = i - 0.5
 
   guides.moveTo(x, 0)
-  guides.lineTo(x, view.y)
+  guides.lineTo(x, figure.y)
 }
 
-for (let i = 0; i < view.y; i += cellMag) {
+for (let i = 0; i < figure.y; i += cellMag) {
   const y = i - 0.5
 
   guides.moveTo(0, y)
-  guides.lineTo(view.x, y)
+  guides.lineTo(figure.x, y)
 }
 
 guides.fillStyle = '#eee'
-guides.fillRect(0, 0, view.x, view.y)
+guides.fillRect(0, 0, figure.x, figure.y)
 guides.strokeStyle = '#ddd'
 guides.stroke()
 
@@ -58,7 +58,7 @@ guides.stroke()
 const cursor = document.createElement('canvas').getContext('2d')
 
 // Save on space
-Object.assign(cursor.canvas, { width: view.x, height: view.y })
+Object.assign(cursor.canvas, { width: figure.x, height: figure.y })
 
 // Prerender mother shape
 cursor.beginPath()
@@ -73,14 +73,14 @@ cursor.stroke()
 
 master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat')
 
+let frames
+
 const tick = fn => window.requestAnimationFrame(fn)
 const stop = id => window.cancelAnimationFrame(id)
 
-let frames
-
 const draw = () => {
-  const center = viewport.clone().multiply(0.5)
-  const correction = view.clone().divide(offset)
+  const center = father.clone().multiply(0.5)
+  const correction = figure.clone().divide(offset)
 
   master.drawImage(guides.canvas, 0, 0)
 
@@ -105,13 +105,17 @@ const draw = () => {
   }
 }
 
+const play = () => {
+  if (!frames) {
+    frames = tick(draw)
+  }
+}
+
 const move = (e) => {
   needle.x = e.pageX || (e.touches && e.touches[0].pageX)
   needle.y = e.pageY || (e.touches && e.touches[0].pageY)
 
-  if (!frames) {
-    frames = tick(draw)
-  }
+  play()
 }
 
 ['mousemove', 'touchmove', 'touchstart'].forEach((e) => {
@@ -121,9 +125,11 @@ const move = (e) => {
 window.addEventListener('resize', () => {
   const { clientWidth, clientHeight } = document.documentElement
 
-  viewport.x = Math.max(window.innerWidth, clientWidth)
-  viewport.y = Math.max(window.innerHeight, clientHeight)
+  father.x = Math.max(window.innerWidth, clientWidth)
+  father.y = Math.max(window.innerHeight, clientHeight)
 
   offset.x = canvas.offsetWidth
   offset.y = canvas.offsetHeight
 })
+
+window.addEventListener('load', play)

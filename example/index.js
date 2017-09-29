@@ -99,25 +99,25 @@ var createGrid = function (v) { return Array.from({ length: v.x * v.y }).map(fun
 var canvas = document.querySelector('canvas');
 var master = canvas.getContext('2d');
 
-// Window size
-var viewport = createVector(window.innerWidth, window.innerHeight);
+// Mouse position
+var needle = createVector();
 
-// Canvas size
-var view = createVector(canvas.width, canvas.height);
+// Window size
+var father = createVector(window.innerWidth, window.innerHeight);
+
+// Canvas dimensions
+var figure = createVector(canvas.width, canvas.height);
+
+// Canvas mid
+var origin = figure.clone().multiply(0.5);
 
 // Canvas bounding rect
 var offset = createVector(canvas.offsetWidth, canvas.offsetHeight);
 
-// Canvas mid
-var origin = view.clone().multiply(0.5);
-
-// Mouse position
-var needle = createVector();
-
 // Grid stuff
 var cellMag = 25;
 var cellMid = cellMag * 0.5;
-var cellN = view.clone().divide(cellMag);
+var cellN = figure.clone().divide(cellMag);
 
 var grid = createGrid(cellN).map(function (p) { return p.multiply(cellMag).add(cellMid); });
 var gridFromOrigin = grid.map(function (p) { return vectorFrom(p).subtract(origin); });
@@ -125,22 +125,22 @@ var gridFromOrigin = grid.map(function (p) { return vectorFrom(p).subtract(origi
 // Draw gridlines
 var guides = canvas.cloneNode().getContext('2d');
 
-for (var i = 0; i < view.x; i += cellMag) {
+for (var i = 0; i < figure.x; i += cellMag) {
   var x = i - 0.5;
 
   guides.moveTo(x, 0);
-  guides.lineTo(x, view.y);
+  guides.lineTo(x, figure.y);
 }
 
-for (var i$1 = 0; i$1 < view.y; i$1 += cellMag) {
+for (var i$1 = 0; i$1 < figure.y; i$1 += cellMag) {
   var y = i$1 - 0.5;
 
   guides.moveTo(0, y);
-  guides.lineTo(view.x, y);
+  guides.lineTo(figure.x, y);
 }
 
 guides.fillStyle = '#eee';
-guides.fillRect(0, 0, view.x, view.y);
+guides.fillRect(0, 0, figure.x, figure.y);
 guides.strokeStyle = '#ddd';
 guides.stroke();
 
@@ -148,7 +148,7 @@ guides.stroke();
 var cursor = document.createElement('canvas').getContext('2d');
 
 // Save on space
-Object.assign(cursor.canvas, { width: view.x, height: view.y });
+Object.assign(cursor.canvas, { width: figure.x, height: figure.y });
 
 // Prerender mother shape
 cursor.beginPath();
@@ -163,14 +163,14 @@ cursor.stroke();
 
 master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat');
 
+var frames;
+
 var tick = function (fn) { return window.requestAnimationFrame(fn); };
 var stop = function (id) { return window.cancelAnimationFrame(id); };
 
-var frames;
-
 var draw = function () {
-  var center = viewport.clone().multiply(0.5);
-  var correction = view.clone().divide(offset);
+  var center = father.clone().multiply(0.5);
+  var correction = figure.clone().divide(offset);
 
   master.drawImage(guides.canvas, 0, 0);
 
@@ -195,13 +195,17 @@ var draw = function () {
   }
 };
 
+var play = function () {
+  if (!frames) {
+    frames = tick(draw);
+  }
+};
+
 var move = function (e) {
   needle.x = e.pageX || (e.touches && e.touches[0].pageX);
   needle.y = e.pageY || (e.touches && e.touches[0].pageY);
 
-  if (!frames) {
-    frames = tick(draw);
-  }
+  play();
 };
 
 ['mousemove', 'touchmove', 'touchstart'].forEach(function (e) {
@@ -213,12 +217,14 @@ window.addEventListener('resize', function () {
   var clientWidth = ref.clientWidth;
   var clientHeight = ref.clientHeight;
 
-  viewport.x = Math.max(window.innerWidth, clientWidth);
-  viewport.y = Math.max(window.innerHeight, clientHeight);
+  father.x = Math.max(window.innerWidth, clientWidth);
+  father.y = Math.max(window.innerHeight, clientHeight);
 
   offset.x = canvas.offsetWidth;
   offset.y = canvas.offsetHeight;
 });
+
+window.addEventListener('load', play);
 
 }());
 
