@@ -50,8 +50,8 @@ export const Vector2d = {
   divide(v) {
     const p = pointFrom(v)
 
-    this.x /= p.x
-    this.y /= p.y
+    this.x /= p.x || 1
+    this.y /= p.y || 1
 
     return this
   },
