@@ -73,8 +73,11 @@ cursor.stroke()
 
 master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat')
 
-const stop = id => window.cancelAnimationFrame(id)
 const tick = fn => window.requestAnimationFrame(fn)
+const stop = id => window.cancelAnimationFrame(id)
+
+let frames
+
 const draw = () => {
   const center = viewport.clone().multiply(0.5)
   const correction = view.clone().divide(offset)
@@ -96,24 +99,19 @@ const draw = () => {
     master.fillRect(0, 0, cellMag, cellMag)
     master.restore()
   })
+
+  if (frames) {
+    frames = stop(frames)
+  }
 }
 
-let frameId = -1
-
 const move = (e) => {
-  e.preventDefault()
+  needle.x = e.pageX || (e.touches && e.touches[0].pageX)
+  needle.y = e.pageY || (e.touches && e.touches[0].pageY)
 
-  const pageX = e.pageX || (e.touches && e.touches[0].pageX)
-  const pageY = e.pageY || (e.touches && e.touches[0].pageY)
-
-  if (needle.x === pageX && needle.y === pageY) {
-    frameId = stop(frameId)
-  } else {
-    frameId = tick(draw)
+  if (!frames) {
+    frames = tick(draw)
   }
-
-  needle.x = pageX
-  needle.y = pageY
 }
 
 ['mousemove', 'touchmove', 'touchstart'].forEach((e) => {
@@ -128,8 +126,4 @@ window.addEventListener('resize', () => {
 
   offset.x = canvas.offsetWidth
   offset.y = canvas.offsetHeight
-})
-
-window.addEventListener('load', () => {
-  frameId = tick(draw)
 })

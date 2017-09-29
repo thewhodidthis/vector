@@ -163,8 +163,11 @@ cursor.stroke();
 
 master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat');
 
-var stop = function (id) { return window.cancelAnimationFrame(id); };
 var tick = function (fn) { return window.requestAnimationFrame(fn); };
+var stop = function (id) { return window.cancelAnimationFrame(id); };
+
+var frames;
+
 var draw = function () {
   var center = viewport.clone().multiply(0.5);
   var correction = view.clone().divide(offset);
@@ -186,24 +189,19 @@ var draw = function () {
     master.fillRect(0, 0, cellMag, cellMag);
     master.restore();
   });
+
+  if (frames) {
+    frames = stop(frames);
+  }
 };
 
-var frameId = -1;
-
 var move = function (e) {
-  e.preventDefault();
+  needle.x = e.pageX || (e.touches && e.touches[0].pageX);
+  needle.y = e.pageY || (e.touches && e.touches[0].pageY);
 
-  var pageX = e.pageX || (e.touches && e.touches[0].pageX);
-  var pageY = e.pageY || (e.touches && e.touches[0].pageY);
-
-  if (needle.x === pageX && needle.y === pageY) {
-    frameId = stop(frameId);
-  } else {
-    frameId = tick(draw);
+  if (!frames) {
+    frames = tick(draw);
   }
-
-  needle.x = pageX;
-  needle.y = pageY;
 };
 
 ['mousemove', 'touchmove', 'touchstart'].forEach(function (e) {
@@ -220,10 +218,6 @@ window.addEventListener('resize', function () {
 
   offset.x = canvas.offsetWidth;
   offset.y = canvas.offsetHeight;
-});
-
-window.addEventListener('load', function () {
-  frameId = tick(draw);
 });
 
 }());
