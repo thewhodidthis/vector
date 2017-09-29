@@ -49,7 +49,7 @@ for (let i = 0; i < view.y; i += cellMag) {
   guides.lineTo(view.x, y)
 }
 
-guides.fillStyle = '#fff'
+guides.fillStyle = '#eee'
 guides.fillRect(0, 0, view.x, view.y)
 guides.strokeStyle = '#ddd'
 guides.stroke()
@@ -106,25 +106,25 @@ const move = (e) => {
   const pageX = e.pageX || (e.touches && e.touches[0].pageX)
   const pageY = e.pageY || (e.touches && e.touches[0].pageY)
 
-  if (needle.x !== pageX || needle.y !== pageY) {
-    frameId = tick(draw)
-  } else {
+  if (needle.x === pageX && needle.y === pageY) {
     frameId = stop(frameId)
+  } else {
+    frameId = tick(draw)
   }
 
   needle.x = pageX
   needle.y = pageY
-};
+}
 
 ['mousemove', 'touchmove', 'touchstart'].forEach((e) => {
   document.addEventListener(e, move)
 })
 
-const html = document.documentElement
-
 window.addEventListener('resize', () => {
-  viewport.x = Math.max(window.innerWidth, html.clientWidth)
-  viewport.y = Math.max(window.innerHeight, html.clientHeight)
+  const { clientWidth, clientHeight } = document.documentElement
+
+  viewport.x = Math.max(window.innerWidth, clientWidth)
+  viewport.y = Math.max(window.innerHeight, clientHeight)
 
   offset.x = canvas.offsetWidth
   offset.y = canvas.offsetHeight

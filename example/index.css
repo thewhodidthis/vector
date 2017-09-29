@@ -1,4 +1,5 @@
 html {
+  background: #eee;
   font: 16px/1.25 arial, sans-serif;
   touch-action: none;
 }
@@ -37,7 +38,7 @@ figure {
 }
 
 figcaption {
-  margin: 0.5rem;
+  margin: 0.5rem 0 0;
 }
 
 canvas,
