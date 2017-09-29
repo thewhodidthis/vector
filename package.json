@@ -1,6 +1,6 @@
 {
   "name": "@thewhodidthis/vector",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Helps with vector math",
   "main": "index.js",
   "module": "index.mjs",
