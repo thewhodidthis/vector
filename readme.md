@@ -3,7 +3,8 @@
 
 ### Setup
 ```sh
-npm install thewhodidthis/vector
+# Fetch latest from github
+npm i thewhodidthis/vector
 ```
 
 ### Usage
