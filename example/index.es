@@ -1,28 +1,29 @@
-import { createVector as Vector } from '../index.mjs'
+import { createVector as vector2d } from '../index.mjs'
 
 // Instead of cloning all the time
-const vectorFrom = v => Vector(v.x, v.y)
+const vectorFrom = v => vector2d(v.x, v.y)
 
 // Prepare grid points array
-const createGrid = v => Array.from({ length: v.x * v.y }).map((p, i) => Vector(i % v.x, Math.floor(i / v.x)))
+const createGrid = v => Array.from({ length: v.x * v.y })
+  .map((p, i) => vector2d(i % v.x, Math.floor(i / v.x)))
 
 const canvas = document.querySelector('canvas')
 const master = canvas.getContext('2d')
 
 // Mouse position
-const needle = Vector()
+const needle = vector2d()
 
 // Window size
-const father = Vector(window.innerWidth, window.innerHeight)
+const father = vector2d(window.innerWidth, window.innerHeight)
 
 // Canvas dimensions
-const figure = Vector(canvas.width, canvas.height)
+const figure = vector2d(canvas.width, canvas.height)
 
 // Canvas mid
 const origin = figure.clone().multiply(0.5)
 
 // Canvas bounding rect
-const offset = Vector(canvas.offsetWidth, canvas.offsetHeight)
+const offset = vector2d(canvas.offsetWidth, canvas.offsetHeight)
 
 // Grid stuff
 const cellMag = 25
