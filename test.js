@@ -1,40 +1,28 @@
 'use strict'
 
-const test = require('tape')
+const { equal } = require('tapeless')
 const { createVector } = require('./')
 
-test('will default', (t) => {
-  const { x, y } = createVector(2)
+const { x, y } = createVector(2)
 
-  t.equals(x, 2)
-  t.equals(y, 0)
-  t.end()
-})
+equal(x, 2, 'x is a match', 'will default')
+equal(y, 0, 'y is a match')
 
-test('will add', (t) => {
-  const v1 = createVector(2)
-  const v2 = createVector(2)
-  const { x, y } = v1.add(v2)
+const v1 = createVector(2)
+const v2 = createVector(2)
+const v3 = v1.add(v2)
 
-  t.equals(x, 4)
-  t.equals(y, 0)
-  t.end()
-})
+equal(v3.x, 4, undefined, 'will add')
+equal(v3.y, 0)
 
-test('will invert', (t) => {
-  const v1 = createVector(1, 1)
-  const { x, y } = v1.invert()
+const v4 = createVector(1, 1)
+const v5 = v4.invert()
 
-  t.equals(x, -1)
-  t.equals(y, -1)
-  t.end()
-})
+equal(v5.x, -1, undefined, 'will invert')
+equal(v5.y, -1)
 
-test('will operate', (t) => {
-  const v1 = createVector(1, 1)
-  const v2 = v1.multiply(v1)
-  const v3 = v2.mag()
+const v6 = createVector(1, 1)
+const v7 = v6.multiply(v6)
+const v8 = v7.mag()
 
-  t.equals(v3, Math.sqrt(v2.x + v2.y))
-  t.end()
-})
+equal(v8, Math.sqrt(v7.x + v7.y), undefined, 'will operate')
