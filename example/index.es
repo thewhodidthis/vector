@@ -37,14 +37,14 @@ const gridFromOrigin = grid.map(p => vectorFrom(p).subtract(origin))
 const guides = canvas.cloneNode().getContext('2d')
 
 for (let i = 0; i < figure.x; i += cellMag) {
-  const x = i - 0.5
+  const x = i + 0.5
 
   guides.moveTo(x, 0)
   guides.lineTo(x, figure.y)
 }
 
 for (let i = 0; i < figure.y; i += cellMag) {
-  const y = i - 0.5
+  const y = i + 0.5
 
   guides.moveTo(0, y)
   guides.lineTo(figure.x, y)

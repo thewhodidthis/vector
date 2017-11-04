@@ -127,14 +127,14 @@ var gridFromOrigin = grid.map(function (p) { return vectorFrom(p).subtract(origi
 var guides = canvas.cloneNode().getContext('2d');
 
 for (var i = 0; i < figure.x; i += cellMag) {
-  var x = i - 0.5;
+  var x = i + 0.5;
 
   guides.moveTo(x, 0);
   guides.lineTo(x, figure.y);
 }
 
 for (var i$1 = 0; i$1 < figure.y; i$1 += cellMag) {
-  var y = i$1 - 0.5;
+  var y = i$1 + 0.5;
 
   guides.moveTo(0, y);
   guides.lineTo(figure.x, y);
