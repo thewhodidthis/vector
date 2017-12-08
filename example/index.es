@@ -113,6 +113,8 @@ const play = () => {
 }
 
 const move = (e) => {
+  e.preventDefault()
+
   needle.x = e.pageX || (e.touches && e.touches[0].pageX)
   needle.y = e.pageY || (e.touches && e.touches[0].pageY)
 
