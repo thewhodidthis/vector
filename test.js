@@ -23,6 +23,6 @@ equal(v5.y, -1)
 
 const v6 = createVector(1, 1)
 const v7 = v6.multiply(v6)
-const v8 = v7.mag()
+const v8 = v7.length()
 
 equal(v8, Math.sqrt(v7.x + v7.y), undefined, 'will operate')
