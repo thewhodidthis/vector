@@ -99,7 +99,7 @@ for (var j = 1, t = h / cell; j < t; j += 1) {
 
 guides.stroke();
 
-var colors = ['#fff', '#888', '#000', '#ff0', '#f0f', '#f00', '#0f0', '#0ff', '#00f'];
+var colors = ['#fff', '#000', '#ff0', '#f0f', '#f00', '#0f0', '#0ff', '#00f'];
 
 var needle = createVector();
 var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);

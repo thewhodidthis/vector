@@ -27,7 +27,7 @@ for (let j = 1, t = h / cell; j < t; j += 1) {
 
 guides.stroke()
 
-const colors = ['#fff', '#888', '#000', '#ff0', '#f0f', '#f00', '#0f0', '#0ff', '#00f']
+const colors = ['#fff', '#000', '#ff0', '#f0f', '#f00', '#0f0', '#0ff', '#00f']
 
 const needle = createVector()
 const center = createVector(window.innerWidth, window.innerHeight).multiply(0.5)
