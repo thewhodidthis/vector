@@ -1,114 +1,98 @@
-import { createVector as vector2d } from '../index.mjs'
-
-// Instead of cloning all the time
-const vectorFrom = v => vector2d(v.x, v.y)
-
-// Prepare grid points array
-const createGrid = v => Array.from({ length: v.x * v.y })
-  .map((p, i) => vector2d(i % v.x, Math.floor(i / v.x)))
+import { createVector } from '../index.mjs'
 
 const canvas = document.querySelector('canvas')
-const master = canvas.getContext('2d')
+const target = canvas.getContext('2d')
 
-// Mouse position
-const needle = vector2d()
+const { width: w, height: h } = canvas
 
-// Window size
-const father = vector2d(window.innerWidth, window.innerHeight)
+const peak = (h * h) + (w * w)
+const cell = 20
 
-// Canvas dimensions
-const figure = vector2d(canvas.width, canvas.height)
-
-// Canvas mid
-const origin = figure.clone().multiply(0.5)
-
-// Canvas bounding rect
-const offset = vector2d(canvas.offsetWidth, canvas.offsetHeight)
-
-// Grid stuff
-const cellMag = 25
-const cellMid = cellMag * 0.5
-const cellN = figure.clone().divide(cellMag)
-
-const grid = createGrid(cellN).map(p => p.multiply(cellMag).add(cellMid))
-const gridFromOrigin = grid.map(p => vectorFrom(p).subtract(origin))
-
-// Draw gridlines
+// Gridlines
 const guides = canvas.cloneNode().getContext('2d')
 
-for (let i = 0; i < figure.x; i += cellMag) {
-  const x = i + 0.5
+for (let i = 1, s = w / cell; i < s; i += 1) {
+  const x = (i * cell) + 0.5
 
   guides.moveTo(x, 0)
-  guides.lineTo(x, figure.y)
+  guides.lineTo(x, h)
 }
 
-for (let i = 0; i < figure.y; i += cellMag) {
-  const y = i + 0.5
+for (let j = 1, t = h / cell; j < t; j += 1) {
+  const y = (j * cell) + 0.5
 
   guides.moveTo(0, y)
-  guides.lineTo(figure.x, y)
+  guides.lineTo(w, y)
 }
 
-guides.fillStyle = '#eee'
-guides.fillRect(0, 0, figure.x, figure.y)
-guides.strokeStyle = '#ddd'
 guides.stroke()
 
-// Prerender mother shape
-const cursor = document.createElement('canvas').getContext('2d')
+const colors = ['#fff', '#888', '#000', '#ff0', '#f0f', '#f00', '#0f0', '#0ff', '#00f']
 
-// Save on space
-Object.assign(cursor.canvas, { width: figure.x, height: figure.y })
+const needle = createVector()
+const center = createVector(window.innerWidth, window.innerHeight).multiply(0.5)
+const offset = createVector(w, h).multiply(0.5)
 
-// Prerender mother shape
-cursor.beginPath()
-cursor.moveTo(cellMag * 0.625, cellMag * 0.375)
-cursor.lineTo(cellMag * 0.75, cellMid)
-cursor.lineTo(cellMag * 0.625, cellMag * 0.625)
-cursor.moveTo(cellMag * 0.25, cellMid)
-cursor.lineTo(cellMag * 0.75, cellMid)
-cursor.lineCap = 'square'
-cursor.lineWidth = 1.5
-cursor.stroke()
+const lookup = Array.from({ length: (w * h) / (cell * cell) }).map((v, i) => {
+  const s = i * cell
+  const x = s % w
+  const y = cell * Math.floor(s / w)
 
-master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat')
+  return createVector(x, y)
+})
 
-let frames
+const random = n => Math.floor(Math.random() * n)
+
+const points = Array.from({ length: colors.length }).map(() => {
+  const v = createVector()
+
+  v.x = random(w)
+  v.y = random(h)
+
+  return v
+})
 
 const tick = fn => window.requestAnimationFrame(fn)
 const stop = id => window.cancelAnimationFrame(id)
 
+let beat
+
 const draw = () => {
-  const center = father.clone().multiply(0.5)
-  const correction = figure.clone().divide(offset)
+  const marker = needle.clone().subtract(center).add(offset)
+  const master = points[0]
 
-  master.drawImage(guides.canvas, 0, 0)
+  master.copy(marker)
 
-  grid.forEach((p, i) => {
-    const point = gridFromOrigin[i]
-    const angle = vectorFrom(needle)
-      .subtract(center)
-      .multiply(correction)
-      .subtract(point)
-      .angle()
+  // Voronoi loop adapted from
+  // https://rosettacode.org/wiki/Voronoi_diagram#JavaScript
+  lookup.forEach((p) => {
+    let tip = peak
+    let c = 0
 
-    master.save()
-    master.translate(p.x, p.y)
-    master.rotate(angle)
-    master.translate(-cellMid, -cellMid)
-    master.fillRect(0, 0, cellMag, cellMag)
-    master.restore()
+    points.forEach((spot, n) => {
+      const copy = spot.clone()
+      const dist = copy.subtract(p).dot(copy)
+
+      if (dist < tip) {
+        tip = dist
+        c = n
+      }
+    })
+
+    target.fillStyle = colors[c]
+    target.fillRect(p.x, p.y, cell, cell)
   })
 
-  if (frames) {
-    frames = stop(frames)
+  target.drawImage(guides.canvas, 0, 0)
+
+  if (beat) {
+    beat = stop(beat)
   }
 }
 
 const play = () => {
-  if (!frames) {
-    frames = tick(draw)
+  if (!beat) {
+    beat = tick(draw)
   }
 }
 
@@ -125,14 +109,13 @@ const move = (e) => {
   document.addEventListener(e, move)
 })
 
+const html = document.documentElement
+
 window.addEventListener('resize', () => {
-  const { clientWidth, clientHeight } = document.documentElement
+  const x = Math.max(window.innerWidth, html.clientWidth)
+  const y = Math.max(window.innerHeight, html.clientHeight)
 
-  father.x = Math.max(window.innerWidth, clientWidth)
-  father.y = Math.max(window.innerHeight, clientHeight)
-
-  offset.x = canvas.offsetWidth
-  offset.y = canvas.offsetHeight
+  center.copy({ x, y }).multiply(0.5)
 })
 
 window.addEventListener('load', play)

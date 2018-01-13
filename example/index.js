@@ -2,30 +2,21 @@
 'use strict';
 
 // Expects vector-like `Object` or `Number`
-var pointFrom = function (n) { return Object.assign({ x: n, y: n }, n); };
+var pointFrom = function (v) { return Object.assign({ x: v, y: v }, v); };
 
 // For composing with
 var Vector2d = {
   x: 0,
   y: 0,
-
-  // Scalars
-  mag: function mag() {
-    return Math.sqrt(this.dot(this))
-  },
-  dist: function dist(a) {
-    // Angle between
-    return Math.acos(this.dot(a) / (this.mag() * a.mag()))
-  },
   angle: function angle() {
-    // To angle
     return Math.atan2(this.y, this.x)
+  },
+  length: function length(v) {
+    return Math.sqrt(this.dot(v || this))
   },
   dot: function dot(v) {
     return (this.x * v.x) + (this.y * v.y)
   },
-
-  // Math
   add: function add(v) {
     var p = pointFrom(v);
 
@@ -58,147 +49,122 @@ var Vector2d = {
 
     return this
   },
-
-  // Transfer
   copy: function copy(v) {
     this.x = v.x;
     this.y = v.y;
 
     return this
   },
-
-  // Duplicate
   clone: function clone() {
     return Object.assign({}, this)
   },
-
-  // Compare
   equals: function equals(v) {
     return this.x === v.x && this.y === v.y
   },
-
-  // Negate
   invert: function invert() {
     return this.multiply(-1)
   },
-
-  // Scale
-  normalise: function normalise() {
-    return this.divide(this.mag())
+  normalize: function normalize() {
+    return this.divide(this.length())
   }
 };
 
 var createVector = function (x, y) { return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 }); };
 
-// Instead of cloning all the time
-var vectorFrom = function (v) { return createVector(v.x, v.y); };
-
-// Prepare grid points array
-var createGrid = function (v) { return Array.from({ length: v.x * v.y })
-  .map(function (p, i) { return createVector(i % v.x, Math.floor(i / v.x)); }); };
-
 var canvas = document.querySelector('canvas');
-var master = canvas.getContext('2d');
+var target = canvas.getContext('2d');
 
-// Mouse position
-var needle = createVector();
+var w = canvas.width;
+var h = canvas.height;
 
-// Window size
-var father = createVector(window.innerWidth, window.innerHeight);
+var peak = (h * h) + (w * w);
+var cell = 20;
 
-// Canvas dimensions
-var figure = createVector(canvas.width, canvas.height);
-
-// Canvas mid
-var origin = figure.clone().multiply(0.5);
-
-// Canvas bounding rect
-var offset = createVector(canvas.offsetWidth, canvas.offsetHeight);
-
-// Grid stuff
-var cellMag = 25;
-var cellMid = cellMag * 0.5;
-var cellN = figure.clone().divide(cellMag);
-
-var grid = createGrid(cellN).map(function (p) { return p.multiply(cellMag).add(cellMid); });
-var gridFromOrigin = grid.map(function (p) { return vectorFrom(p).subtract(origin); });
-
-// Draw gridlines
+// Gridlines
 var guides = canvas.cloneNode().getContext('2d');
 
-for (var i = 0; i < figure.x; i += cellMag) {
-  var x = i + 0.5;
+for (var i = 1, s = w / cell; i < s; i += 1) {
+  var x = (i * cell) + 0.5;
 
   guides.moveTo(x, 0);
-  guides.lineTo(x, figure.y);
+  guides.lineTo(x, h);
 }
 
-for (var i$1 = 0; i$1 < figure.y; i$1 += cellMag) {
-  var y = i$1 + 0.5;
+for (var j = 1, t = h / cell; j < t; j += 1) {
+  var y = (j * cell) + 0.5;
 
   guides.moveTo(0, y);
-  guides.lineTo(figure.x, y);
+  guides.lineTo(w, y);
 }
 
-guides.fillStyle = '#eee';
-guides.fillRect(0, 0, figure.x, figure.y);
-guides.strokeStyle = '#ddd';
 guides.stroke();
 
-// Prerender mother shape
-var cursor = document.createElement('canvas').getContext('2d');
+var colors = ['#fff', '#888', '#000', '#ff0', '#f0f', '#f00', '#0f0', '#0ff', '#00f'];
 
-// Save on space
-Object.assign(cursor.canvas, { width: figure.x, height: figure.y });
+var needle = createVector();
+var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
+var offset = createVector(w, h).multiply(0.5);
 
-// Prerender mother shape
-cursor.beginPath();
-cursor.moveTo(cellMag * 0.625, cellMag * 0.375);
-cursor.lineTo(cellMag * 0.75, cellMid);
-cursor.lineTo(cellMag * 0.625, cellMag * 0.625);
-cursor.moveTo(cellMag * 0.25, cellMid);
-cursor.lineTo(cellMag * 0.75, cellMid);
-cursor.lineCap = 'square';
-cursor.lineWidth = 1.5;
-cursor.stroke();
+var lookup = Array.from({ length: (w * h) / (cell * cell) }).map(function (v, i) {
+  var s = i * cell;
+  var x = s % w;
+  var y = cell * Math.floor(s / w);
 
-master.fillStyle = master.createPattern(cursor.canvas, 'no-repeat');
+  return createVector(x, y)
+});
 
-var frames;
+var random = function (n) { return Math.floor(Math.random() * n); };
+
+var points = Array.from({ length: colors.length }).map(function () {
+  var v = createVector();
+
+  v.x = random(w);
+  v.y = random(h);
+
+  return v
+});
 
 var tick = function (fn) { return window.requestAnimationFrame(fn); };
 var stop = function (id) { return window.cancelAnimationFrame(id); };
 
+var beat;
+
 var draw = function () {
-  var center = father.clone().multiply(0.5);
-  var correction = figure.clone().divide(offset);
+  var marker = needle.clone().subtract(center).add(offset);
+  var master = points[0];
 
-  master.drawImage(guides.canvas, 0, 0);
+  master.copy(marker);
 
-  grid.forEach(function (p, i) {
-    var point = gridFromOrigin[i];
-    var angle = vectorFrom(needle)
-      .subtract(center)
-      .multiply(correction)
-      .subtract(point)
-      .angle();
+  // Voronoi loop adapted from
+  // https://rosettacode.org/wiki/Voronoi_diagram#JavaScript
+  lookup.forEach(function (p) {
+    var tip = peak;
+    var c = 0;
 
-    master.save();
-    master.translate(p.x, p.y);
-    master.rotate(angle);
-    master.translate(-cellMid, -cellMid);
-    master.fillRect(0, 0, cellMag, cellMag);
-    master.restore();
+    points.forEach(function (spot, n) {
+      var copy = spot.clone();
+      var dist = copy.subtract(p).dot(copy);
+
+      if (dist < tip) {
+        tip = dist;
+        c = n;
+      }
+    });
+
+    target.fillStyle = colors[c];
+    target.fillRect(p.x, p.y, cell, cell);
   });
 
-  if (frames) {
-    frames = stop(frames);
+  target.drawImage(guides.canvas, 0, 0);
+
+  if (beat) {
+    beat = stop(beat);
   }
 };
 
 var play = function () {
-  if (!frames) {
-    frames = tick(draw);
+  if (!beat) {
+    beat = tick(draw);
   }
 };
 
@@ -215,16 +181,13 @@ var move = function (e) {
   document.addEventListener(e, move);
 });
 
+var html = document.documentElement;
+
 window.addEventListener('resize', function () {
-  var ref = document.documentElement;
-  var clientWidth = ref.clientWidth;
-  var clientHeight = ref.clientHeight;
+  var x = Math.max(window.innerWidth, html.clientWidth);
+  var y = Math.max(window.innerHeight, html.clientHeight);
 
-  father.x = Math.max(window.innerWidth, clientWidth);
-  father.y = Math.max(window.innerHeight, clientHeight);
-
-  offset.x = canvas.offsetWidth;
-  offset.y = canvas.offsetHeight;
+  center.copy({ x: x, y: y }).multiply(0.5);
 });
 
 window.addEventListener('load', play);
