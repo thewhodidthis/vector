@@ -1,5 +1,4 @@
 html {
-  background: #eee;
   font: 16px/1.25 arial, sans-serif;
   touch-action: none;
 }
@@ -31,14 +30,24 @@ p {
 
 figure {
   left: 50%;
-  margin: -150px 0 0 -250px;
+  margin: -180px 0 0 -320px;
   position: absolute;
   text-align: center;
   top: 50%;
 }
 
+figure::before {
+  border: 1px solid #000;
+  content: "";
+  height: 360px;
+  left: -1px;
+  position: absolute;
+  top: -1px;
+  width: 640px;
+}
+
 figcaption {
-  margin: 0.5rem 0 0;
+  margin: 0.5rem 0 0 0;
 }
 
 canvas,
@@ -47,6 +56,7 @@ img {
 }
 
 canvas {
-  border: 1px solid #ddd;
-  border-width: 0 1px 1px 0;
+  background: #000;
+  /* border: 1px solid #000; */
+  /* margin: -2px 0 0 -2px; */
 }
