@@ -1,28 +1,19 @@
 // Expects vector-like `Object` or `Number`
-const pointFrom = n => Object.assign({ x: n, y: n }, n)
+const pointFrom = v => Object.assign({ x: v, y: v }, v)
 
 // For composing with
 export const Vector2d = {
   x: 0,
   y: 0,
-
-  // Scalars
-  mag() {
-    return Math.sqrt(this.dot(this))
-  },
-  dist(a) {
-    // Angle between
-    return Math.acos(this.dot(a) / (this.mag() * a.mag()))
-  },
   angle() {
-    // To angle
     return Math.atan2(this.y, this.x)
+  },
+  length(v) {
+    return Math.sqrt(this.dot(v || this))
   },
   dot(v) {
     return (this.x * v.x) + (this.y * v.y)
   },
-
-  // Math
   add(v) {
     const p = pointFrom(v)
 
@@ -55,33 +46,23 @@ export const Vector2d = {
 
     return this
   },
-
-  // Transfer
   copy(v) {
     this.x = v.x
     this.y = v.y
 
     return this
   },
-
-  // Duplicate
   clone() {
     return Object.assign({}, this)
   },
-
-  // Compare
   equals(v) {
     return this.x === v.x && this.y === v.y
   },
-
-  // Negate
   invert() {
     return this.multiply(-1)
   },
-
-  // Scale
-  normalise() {
-    return this.divide(this.mag())
+  normalize() {
+    return this.divide(this.length())
   }
 }
 
