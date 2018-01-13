@@ -9,36 +9,36 @@ npm i thewhodidthis/vector
 
 ### Usage
 ```js
-import { Vector2d } from '@thewhodidthis/vector';
+import { Vector2d } from '@thewhodidthis/vector'
 
-// Innards
+// Inspect
 Object.keys(Vector2d).forEach((k) => {
-    console.log(k);
-});
+    console.log(k)
+})
 ```
 
 ### Example
 ```js
-import { Vector2d, createVector } from '@thewhodidthis/vector';
+import { Vector2d, createVector } from '@thewhodidthis/vector'
 
 // Extend
 const myVector = Object.assign({}, Vector2d, {
     get w() {
-        return this.x;
+        return this.x
     },
     get h() {
-        return this.y;
+        return this.y
     },
     min() {
-        return Math.min(this.x, this.y);
+        return Math.min(this.x, this.y)
     },
     max() {
-        return Math.max(this.x, this.y);
+        return Math.max(this.x, this.y)
     },
-});
+})
 
 // Expand on
-const fromAngle = a => createVector(Math.cos(a), Math.sin(a));
-const rand = () => fromAngle(Math.random() * Math.PI * 2);
-const lerp = (a, b, fraction) => b.subtract(a).multiply(fraction).add(a);
+const fromAngle = a => createVector(Math.cos(a), Math.sin(a))
+const rand = () => fromAngle(Math.random() * Math.PI * 2)
+const lerp = (a, b, fraction) => b.subtract(a).multiply(fraction).add(a)
 ```
