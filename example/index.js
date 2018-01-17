@@ -78,50 +78,53 @@ var w = canvas.width;
 var h = canvas.height;
 
 var peak = (h * h) + (w * w);
-var cell = 20;
 
-// Gridlines
-var guides = canvas.cloneNode().getContext('2d');
+var step = 20;
+var edge = 6;
+var span = step - edge;
 
-for (var i = 1, s = w / cell; i < s; i += 1) {
-  var x = (i * cell) + 0.5;
+var mark = document.createElement('canvas').getContext('2d');
 
-  guides.moveTo(x, 0);
-  guides.lineTo(x, h);
-}
+mark.canvas.width = mark.canvas.height = step;
+mark.lineWidth = 2;
 
-for (var j = 1, t = h / cell; j < t; j += 1) {
-  var y = (j * cell) + 0.5;
+mark.fillRect(0, 0, step, step);
+mark.beginPath();
 
-  guides.moveTo(0, y);
-  guides.lineTo(w, y);
-}
+mark.moveTo(edge, edge);
+mark.lineTo(span, span);
+mark.moveTo(span, edge);
+mark.lineTo(edge, span);
 
-guides.stroke();
+var colors = ['#fff', '#000', '#00b', '#0d0', '#dd0', '#d0d', '#0aa', '#d00'];
+var shapes = Array.from(colors).map(function (seed, i) {
+  mark.fillRect(0, 0, step, step);
+  mark.strokeStyle = colors[i];
+  mark.stroke();
 
-var colors = ['#fff', '#000', '#ff0', '#f0f', '#f00', '#0f0', '#0ff', '#00f'];
-
-var needle = createVector();
-var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
-var offset = createVector(w, h).multiply(0.5);
-
-var lookup = Array.from({ length: (w * h) / (cell * cell) }).map(function (v, i) {
-  var s = i * cell;
-  var x = s % w;
-  var y = cell * Math.floor(s / w);
-
-  return createVector(x, y)
+  return mark.createPattern(mark.canvas, '')
 });
 
 var random = function (n) { return Math.floor(Math.random() * n); };
-
-var points = Array.from({ length: colors.length }).map(function () {
+var points = Array.from(shapes).map(function () {
   var v = createVector();
 
   v.x = random(w);
   v.y = random(h);
 
   return v
+});
+
+var needle = createVector();
+var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
+var offset = createVector(w, h).multiply(0.5);
+
+var lookup = Array.from({ length: (w * h) / (step * step) }).map(function (v, i) {
+  var s = i * step;
+  var x = s % w;
+  var y = step * Math.floor(s / w);
+
+  return createVector(x, y)
 });
 
 var tick = function (fn) { return window.requestAnimationFrame(fn); };
@@ -139,7 +142,7 @@ var draw = function () {
   // https://rosettacode.org/wiki/Voronoi_diagram#JavaScript
   lookup.forEach(function (p) {
     var tip = peak;
-    var c = 0;
+    var idx = 0;
 
     points.forEach(function (spot, n) {
       var copy = spot.clone();
@@ -147,15 +150,13 @@ var draw = function () {
 
       if (dist < tip) {
         tip = dist;
-        c = n;
+        idx = n;
       }
     });
 
-    target.fillStyle = colors[c];
-    target.fillRect(p.x, p.y, cell, cell);
+    target.fillStyle = shapes[idx];
+    target.fillRect(p.x, p.y, step, step);
   });
-
-  target.drawImage(guides.canvas, 0, 0);
 
   if (beat) {
     beat = stop(beat);

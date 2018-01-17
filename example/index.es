@@ -6,50 +6,53 @@ const target = canvas.getContext('2d')
 const { width: w, height: h } = canvas
 
 const peak = (h * h) + (w * w)
-const cell = 20
 
-// Gridlines
-const guides = canvas.cloneNode().getContext('2d')
+const step = 20
+const edge = 6
+const span = step - edge
 
-for (let i = 1, s = w / cell; i < s; i += 1) {
-  const x = (i * cell) + 0.5
+const mark = document.createElement('canvas').getContext('2d')
 
-  guides.moveTo(x, 0)
-  guides.lineTo(x, h)
-}
+mark.canvas.width = mark.canvas.height = step
+mark.lineWidth = 2
 
-for (let j = 1, t = h / cell; j < t; j += 1) {
-  const y = (j * cell) + 0.5
+mark.fillRect(0, 0, step, step)
+mark.beginPath()
 
-  guides.moveTo(0, y)
-  guides.lineTo(w, y)
-}
+mark.moveTo(edge, edge)
+mark.lineTo(span, span)
+mark.moveTo(span, edge)
+mark.lineTo(edge, span)
 
-guides.stroke()
+const colors = ['#fff', '#000', '#00b', '#0d0', '#dd0', '#d0d', '#0aa', '#d00']
+const shapes = Array.from(colors).map((seed, i) => {
+  mark.fillRect(0, 0, step, step)
+  mark.strokeStyle = colors[i]
+  mark.stroke()
 
-const colors = ['#fff', '#000', '#ff0', '#f0f', '#f00', '#0f0', '#0ff', '#00f']
-
-const needle = createVector()
-const center = createVector(window.innerWidth, window.innerHeight).multiply(0.5)
-const offset = createVector(w, h).multiply(0.5)
-
-const lookup = Array.from({ length: (w * h) / (cell * cell) }).map((v, i) => {
-  const s = i * cell
-  const x = s % w
-  const y = cell * Math.floor(s / w)
-
-  return createVector(x, y)
+  return mark.createPattern(mark.canvas, '')
 })
 
 const random = n => Math.floor(Math.random() * n)
-
-const points = Array.from({ length: colors.length }).map(() => {
+const points = Array.from(shapes).map(() => {
   const v = createVector()
 
   v.x = random(w)
   v.y = random(h)
 
   return v
+})
+
+const needle = createVector()
+const center = createVector(window.innerWidth, window.innerHeight).multiply(0.5)
+const offset = createVector(w, h).multiply(0.5)
+
+const lookup = Array.from({ length: (w * h) / (step * step) }).map((v, i) => {
+  const s = i * step
+  const x = s % w
+  const y = step * Math.floor(s / w)
+
+  return createVector(x, y)
 })
 
 const tick = fn => window.requestAnimationFrame(fn)
@@ -67,7 +70,7 @@ const draw = () => {
   // https://rosettacode.org/wiki/Voronoi_diagram#JavaScript
   lookup.forEach((p) => {
     let tip = peak
-    let c = 0
+    let idx = 0
 
     points.forEach((spot, n) => {
       const copy = spot.clone()
@@ -75,15 +78,13 @@ const draw = () => {
 
       if (dist < tip) {
         tip = dist
-        c = n
+        idx = n
       }
     })
 
-    target.fillStyle = colors[c]
-    target.fillRect(p.x, p.y, cell, cell)
+    target.fillStyle = shapes[idx]
+    target.fillRect(p.x, p.y, step, step)
   })
-
-  target.drawImage(guides.canvas, 0, 0)
 
   if (beat) {
     beat = stop(beat)
