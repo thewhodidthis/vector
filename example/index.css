@@ -36,16 +36,6 @@ figure {
   top: 50%;
 }
 
-figure::before {
-  border: 1px solid #000;
-  content: "";
-  height: 360px;
-  left: -1px;
-  position: absolute;
-  top: -1px;
-  width: 640px;
-}
-
 figcaption {
   margin: 0.5rem 0 0 0;
 }
