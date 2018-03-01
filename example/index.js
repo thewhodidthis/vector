@@ -1,197 +1,122 @@
-(function () {
-'use strict';
+import { createVector } from '../index.mjs'
 
-// Expects vector-like `Object` or `Number`
-var pointFrom = function (v) { return Object.assign({ x: v, y: v }, v); };
+const canvas = document.querySelector('canvas')
+const target = canvas.getContext('2d')
 
-// For composing with
-var Vector2d = {
-  x: 0,
-  y: 0,
-  angle: function angle() {
-    return Math.atan2(this.y, this.x)
-  },
-  length: function length(v) {
-    return Math.sqrt(this.dot(v || this))
-  },
-  dot: function dot(v) {
-    return (this.x * v.x) + (this.y * v.y)
-  },
-  add: function add(v) {
-    var p = pointFrom(v);
+const { width: w, height: h } = canvas
 
-    this.x += p.x;
-    this.y += p.y;
+const peak = (h * h) + (w * w)
 
-    return this
-  },
-  subtract: function subtract(v) {
-    var p = pointFrom(v);
+const step = 20
+const edge = 6
+const span = step - edge
 
-    this.x -= p.x;
-    this.y -= p.y;
+const mark = document.createElement('canvas').getContext('2d')
 
-    return this
-  },
-  multiply: function multiply(v) {
-    var p = pointFrom(v);
+mark.canvas.width = mark.canvas.height = step
+mark.lineWidth = 2
 
-    this.x *= p.x;
-    this.y *= p.y;
+mark.fillRect(0, 0, step, step)
+mark.beginPath()
 
-    return this
-  },
-  divide: function divide(v) {
-    var p = pointFrom(v);
+mark.moveTo(edge, edge)
+mark.lineTo(span, span)
+mark.moveTo(span, edge)
+mark.lineTo(edge, span)
 
-    this.x /= p.x || 1;
-    this.y /= p.y || 1;
-
-    return this
-  },
-  copy: function copy(v) {
-    this.x = v.x;
-    this.y = v.y;
-
-    return this
-  },
-  clone: function clone() {
-    return Object.assign({}, this)
-  },
-  equals: function equals(v) {
-    return this.x === v.x && this.y === v.y
-  },
-  invert: function invert() {
-    return this.multiply(-1)
-  },
-  normalize: function normalize() {
-    return this.divide(this.length())
-  }
-};
-
-var createVector = function (x, y) { return Object.assign({}, Vector2d, { x: x || 0, y: y || 0 }); };
-
-var canvas = document.querySelector('canvas');
-var target = canvas.getContext('2d');
-
-var w = canvas.width;
-var h = canvas.height;
-
-var peak = (h * h) + (w * w);
-
-var step = 20;
-var edge = 6;
-var span = step - edge;
-
-var mark = document.createElement('canvas').getContext('2d');
-
-mark.canvas.width = mark.canvas.height = step;
-mark.lineWidth = 2;
-
-mark.fillRect(0, 0, step, step);
-mark.beginPath();
-
-mark.moveTo(edge, edge);
-mark.lineTo(span, span);
-mark.moveTo(span, edge);
-mark.lineTo(edge, span);
-
-var colors = ['#fff', '#000', '#00b', '#0d0', '#dd0', '#d0d', '#0aa', '#d00'];
-var shapes = Array.from(colors).map(function (seed, i) {
-  mark.fillRect(0, 0, step, step);
-  mark.strokeStyle = colors[i];
-  mark.stroke();
+const colors = ['#fff', '#000', '#00b', '#0d0', '#dd0', '#d0d', '#0aa', '#d00']
+const shapes = Array.from(colors).map((seed, i) => {
+  mark.fillRect(0, 0, step, step)
+  mark.strokeStyle = colors[i]
+  mark.stroke()
 
   return mark.createPattern(mark.canvas, '')
-});
+})
 
-var random = function (n) { return Math.floor(Math.random() * n); };
-var points = Array.from(shapes).map(function () {
-  var v = createVector();
+const random = n => Math.floor(Math.random() * n)
+const points = Array.from(shapes).map(() => {
+  const v = createVector()
 
-  v.x = random(w);
-  v.y = random(h);
+  v.x = random(w)
+  v.y = random(h)
 
   return v
-});
+})
 
-var needle = createVector();
-var center = createVector(window.innerWidth, window.innerHeight).multiply(0.5);
-var offset = createVector(w, h).multiply(0.5);
+const needle = createVector()
+const center = createVector(window.innerWidth, window.innerHeight).multiply(0.5)
+const offset = createVector(w, h).multiply(0.5)
 
-var lookup = Array.from({ length: (w * h) / (step * step) }).map(function (v, i) {
-  var s = i * step;
-  var x = s % w;
-  var y = step * Math.floor(s / w);
+const lookup = Array.from({ length: (w * h) / (step * step) }).map((v, i) => {
+  const s = i * step
+  const x = s % w
+  const y = step * Math.floor(s / w)
 
   return createVector(x, y)
-});
+})
 
-var tick = function (fn) { return window.requestAnimationFrame(fn); };
-var stop = function (id) { return window.cancelAnimationFrame(id); };
+const tick = fn => window.requestAnimationFrame(fn)
+const stop = id => window.cancelAnimationFrame(id)
 
-var beat;
+let beat
 
-var draw = function () {
-  var marker = needle.clone().subtract(center).add(offset);
-  var master = points[0];
+const draw = () => {
+  const marker = needle.clone().subtract(center).add(offset)
+  const master = points[0]
 
-  master.copy(marker);
+  master.copy(marker)
 
   // Voronoi loop adapted from
   // https://rosettacode.org/wiki/Voronoi_diagram#JavaScript
-  lookup.forEach(function (p) {
-    var tip = peak;
-    var idx = 0;
+  lookup.forEach((p) => {
+    let tip = peak
+    let idx = 0
 
-    points.forEach(function (spot, n) {
-      var copy = spot.clone();
-      var dist = copy.subtract(p).dot(copy);
+    points.forEach((spot, n) => {
+      const copy = spot.clone()
+      const dist = copy.subtract(p).dot(copy)
 
       if (dist < tip) {
-        tip = dist;
-        idx = n;
+        tip = dist
+        idx = n
       }
-    });
+    })
 
-    target.fillStyle = shapes[idx];
-    target.fillRect(p.x, p.y, step, step);
-  });
+    target.fillStyle = shapes[idx]
+    target.fillRect(p.x, p.y, step, step)
+  })
 
   if (beat) {
-    beat = stop(beat);
+    beat = stop(beat)
   }
-};
+}
 
-var play = function () {
+const play = () => {
   if (!beat) {
-    beat = tick(draw);
+    beat = tick(draw)
   }
-};
+}
 
-var move = function (e) {
-  e.preventDefault();
+const move = (e) => {
+  e.preventDefault()
 
-  needle.x = e.pageX || (e.touches && e.touches[0].pageX);
-  needle.y = e.pageY || (e.touches && e.touches[0].pageY);
+  needle.x = e.pageX || (e.touches && e.touches[0].pageX)
+  needle.y = e.pageY || (e.touches && e.touches[0].pageY)
 
-  play();
-};
+  play()
+}
 
-['mousemove', 'touchmove', 'touchstart'].forEach(function (e) {
-  document.addEventListener(e, move);
-});
+['mousemove', 'touchmove', 'touchstart'].forEach((e) => {
+  document.addEventListener(e, move)
+})
 
-var html = document.documentElement;
+const html = document.documentElement
 
-window.addEventListener('resize', function () {
-  var x = Math.max(window.innerWidth, html.clientWidth);
-  var y = Math.max(window.innerHeight, html.clientHeight);
+window.addEventListener('resize', () => {
+  const x = Math.max(window.innerWidth, html.clientWidth)
+  const y = Math.max(window.innerHeight, html.clientHeight)
 
-  center.copy({ x: x, y: y }).multiply(0.5);
-});
+  center.copy({ x, y }).multiply(0.5)
+})
 
-window.addEventListener('load', play);
-
-}());
-
+window.addEventListener('load', play)
