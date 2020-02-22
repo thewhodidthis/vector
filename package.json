@@ -15,15 +15,13 @@
     "type": "git",
     "url": "git+https://github.com/thewhodidthis/vector.git"
   },
-  "license": "Unlicense",
-  "author": "sChzs BkgNns <sotirios.bakagiannis@gmail.com> (https://www.thewhodidthis.com)",
   "main": "index",
   "module": "index.mjs",
   "scripts": {
     "preexample": "eslint example/index.js",
-    "example": "cd example; rollup -f iife index.js > bundle.js",
+    "example": "cd example; rollup -f iife -o bundle.js index.js",
     "prestart": "eslint index.mjs",
-    "start": "rollup -f cjs index.mjs > index.js",
+    "start": "rollup -f cjs -o index.js index.mjs",
     "pretest": "eslint test.js",
     "test": "node test"
   },
@@ -31,7 +29,7 @@
     "extends": "@thewhodidthis"
   },
   "devDependencies": {
-    "@thewhodidthis/eslint-config": "^0.0.16",
+    "@thewhodidthis/eslint-config": "^0.0.17",
     "eslint": "^6.8.0",
     "rollup": "^1.31.1",
     "tapeless": "^0.0.9"
@@ -39,5 +37,11 @@
   "engines": {
     "node": ">=6.11.0",
     "npm": ">=3.10.10"
-  }
+  },
+  "directories": {
+    "example": "example"
+  },
+  "dependencies": {},
+  "author": "Sotiri Bakagiannis <sotirios.bakagiannis@gmail.com> (http://thewhodidthis.com)",
+  "license": "ISC"
 }
