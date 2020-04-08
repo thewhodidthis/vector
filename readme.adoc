@@ -1,5 +1,5 @@
 ## Vector
-> Super basic vector abstraction based on [evanw/lightgl.js](https://github.com/evanw/lightgl.js/blob/master/src/vector.js)
+> Super basic vector abstraction based on https://github.com/evanw/lightgl.js/blob/master/src/vector.js[evanw/lightgl.js]
 
 ### Setup
 ```sh
