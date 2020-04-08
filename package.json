@@ -1,6 +1,7 @@
 {
   "name": "@thewhodidthis/vector",
   "version": "0.2.3",
+  "private": true,
   "description": "Helps with vector math",
   "keywords": [
     "math",
