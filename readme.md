@@ -1,25 +1,26 @@
-## Vector
-> Super basic vector abstraction based on https://github.com/evanw/lightgl.js/blob/master/src/vector.js[evanw/lightgl.js]
+## about
 
-### Setup
+Super basic vector abstraction based on [evanw/lightgl.js](https://github.com/evanw/lightgl.js/blob/master/src/vector.js).
+
+## setup
+
+Fetch latest from GitHub directly:
+
 ```sh
-# Fetch latest from github
-npm i thewhodidthis/vector
+npm install thewhodidthis/vector
 ```
 
-### Usage
-```js
-import { Vector2d } from '@thewhodidthis/vector'
+## usage
 
-// Inspect
-Object.keys(Vector2d).forEach((k) => {
-  console.log(k)
-})
-```
+A mixin friendly object and corresponding factory function are available. For example,
 
-### Example
 ```js
 import { Vector2d, createVector } from '@thewhodidthis/vector'
+
+// Show built-in methods
+Object.keys(Vector2d).forEach(function inspect(k) {
+  console.log(k)
+})
 
 // Extend
 const myVector = Object.assign({}, Vector2d, {
