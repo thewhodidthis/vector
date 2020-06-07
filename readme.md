@@ -1,18 +1,19 @@
 ## about
 
-Super basic vector abstraction based on [evanw/lightgl.js](https://github.com/evanw/lightgl.js/blob/master/src/vector.js).
+Meant for extending, a simple 2d vector abstraction to aid working with the equations of motion in canvas animations. 
 
 ## setup
 
-Fetch latest from GitHub directly:
+Fetch the latest version from GitHub directly:
 
 ```sh
+# Includes ES and CJS modules
 npm install thewhodidthis/vector
 ```
 
 ## usage
 
-A mixin friendly object and corresponding factory function are available. For example,
+Includes a mixin friendly object literal with _x_, _y_ properties and a basic set of algebraic methods attached such as _add_, _subtract_, _multiply_, and a few others. A corresponding factory function is also available. For example,
 
 ```js
 import { Vector2d, createVector } from '@thewhodidthis/vector'
@@ -43,3 +44,9 @@ const fromAngle = a => createVector(Math.cos(a), Math.sin(a))
 const rand = () => fromAngle(Math.random() * Math.PI * 2)
 const lerp = (a, b, fraction) => b.subtract(a).multiply(fraction).add(a)
 ```
+
+## see also
+
+- [Nature of Code, Ch. 1](https://natureofcode.com/book/chapter-1-vectors/)
+- [p5.Vector](https://p5js.org/reference/#/p5.Vector)
+- [evanw/lightgl.js](https://github.com/evanw/lightgl.js/blob/master/src/vector.js)
