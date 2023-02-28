@@ -44,7 +44,8 @@ const points = Array.from(shapes).map(() => {
 })
 
 const needle = vector()
-const center = vector(window.innerWidth, window.innerHeight).multiply(0.5)
+const center = vector(self.innerWidth, self.innerHeight).multiply(0.5)
+
 const offset = vector(w, h).multiply(0.5)
 
 const lookup = Array.from({ length: (w * h) / (step * step) }).map((_, i) => {
@@ -55,8 +56,8 @@ const lookup = Array.from({ length: (w * h) / (step * step) }).map((_, i) => {
   return vector(x, y)
 })
 
-const tick = fn => window.requestAnimationFrame(fn)
-const stop = id => window.cancelAnimationFrame(id)
+const tick = fn => self.requestAnimationFrame(fn)
+const stop = id => self.cancelAnimationFrame(id)
 
 let beat
 
@@ -74,10 +75,10 @@ const draw = () => {
 
     points.forEach((spot, n) => {
       const copy = spot.clone()
-      const dist = copy.subtract(p).dot(copy)
+      const distance = copy.subtract(p).dot(copy)
 
-      if (dist < tip) {
-        tip = dist
+      if (distance < tip) {
+        tip = distance
         idx = n
       }
     })
@@ -110,13 +111,11 @@ const move = (e) => {
   document.addEventListener(e, move)
 })
 
-const html = document.documentElement
+self.addEventListener("resize", () => {
+  const x = Math.max(self.innerWidth, document.documentElement.clientWidth)
+  const y = Math.max(self.innerHeight, document.documentElement.clientHeight)
 
-window.addEventListener("resize", () => {
-  const x = Math.max(window.innerWidth, html.clientWidth)
-  const y = Math.max(window.innerHeight, html.clientHeight)
-
-  center.copy({ x, y }).multiply(0.5)
+  center.copy({ x, y }).times(0.5)
 })
 
-window.addEventListener("load", play)
+self.addEventListener("load", play)
