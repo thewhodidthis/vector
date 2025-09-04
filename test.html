@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>vector.js</title>
+    <script type="module">
+      import "https://thewhodidthis.github.io/cutaway/main.js"
+      import { assert, report } from "https://thewhodidthis.github.io/tapeless/main.js"
+      import { vector } from "./main.js"
+
+      const { equal } = assert
+      const { x, y } = vector(2)
+
+      equal
+        .describe("x is a match")
+        .test(x, 2)
+        .describe("y is a match", "will default")
+        .test(y, 0)
+
+      const v1 = vector(2)
+      const v2 = vector(2)
+      const v3 = v1.add(v2)
+
+      equal
+        .test(v3.x, 4)
+        .describe(undefined, "will add")
+        .test(v3.y, 0)
+
+      const v4 = vector(1, 1)
+      const v5 = v4.invert()
+
+      equal
+        .test(v5.x, -1)
+        .describe(undefined, "will invert")
+        .test(v5.y, -1)
+
+      const v6 = vector(1, 1)
+      const v7 = v6.multiply(v6)
+      const v8 = v7.length()
+
+      equal
+        .describe(undefined, "will operate")
+        .test(v8, Math.sqrt(v7.x + v7.y))
+
+      report()
+    </script>
+  </head>
+  <body></body>
+</html>
